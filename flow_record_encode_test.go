@@ -2,10 +2,10 @@ package sflow
 
 import (
 	"bytes"
+	"fmt"
 	"net"
 	"reflect"
 	"testing"
-	"fmt"
 )
 
 func TestEncodeDecodeExtendedGatewayFlowRecord(t *testing.T) {

@@ -115,6 +115,7 @@ func decodeFlowSample(r io.ReadSeeker) (Sample, error) {
 		return nil, err
 	}
 
+	fmt.Printf("Got %d records\n", s.numRecords)
 	for i := uint32(0); i < s.numRecords; i++ {
 		format, length := uint32(0), uint32(0)
 
@@ -141,12 +142,18 @@ func decodeFlowSample(r io.ReadSeeker) (Sample, error) {
 			if err != nil {
 				return nil, err
 			}
+		case TypeExtendedRouterFlowRecord:
+			rec, err = decodeExtendedRouterFlow(r)
+			if err != nil {
+				return nil, err
+			}
 		case TypeExtendedGatewayFlowRecord:
 			rec, err = decodeExtendedGatewayFlow(r)
 			if err != nil {
 				return nil, err
 			}
 		default:
+			fmt.Printf("Unhandled Record Type: %d\n", format)
 			_, err := r.Seek(int64(length), 1)
 			if err != nil {
 				return nil, err
