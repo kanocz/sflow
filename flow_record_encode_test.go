@@ -2,9 +2,58 @@ package sflow
 
 import (
 	"bytes"
+	"net"
 	"reflect"
 	"testing"
+	"fmt"
 )
+
+func TestEncodeDecodeExtendedGatewayFlowRecord(t *testing.T) {
+	rec := ExtendedGatewayFlow{
+		NextHopType:          1,
+		NextHop:              net.ParseIP("1.1.1.1"),
+		As:                   1234,
+		SrcAs:                4321,
+		SrcPeerAs:            5678,
+		DstAsPathSegmentsLen: 1,
+		DstAsPathSegments: []ExtendedGatewayFlowASPathSegment{{
+			SegType: 1,
+			SegLen:  3,
+			Seg:     []uint32{1234, 4321, 65535},
+		}},
+		CommunitiesLen: 3,
+		Communities:    []uint32{1, 18, 42011},
+		LocalPref:      255,
+	}
+
+	b := &bytes.Buffer{}
+
+	err := rec.encode(b)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Printf("Received binary results: %+#v\n", b)
+
+	// Skip the header section. It's 8 bytes.
+	var headerBytes [8]byte
+
+	_, err = b.Read(headerBytes[:])
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	decoded, err := decodeExtendedGatewayFlow(b)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	fmt.Printf("Got     : %+#v\n", decoded)
+	fmt.Printf("Expected: %+#v\n", rec)
+	if !reflect.DeepEqual(rec, decoded) {
+		t.Errorf("expected\n%+#v\n, got\n%+#v", rec, decoded)
+	}
+}
 
 func TestEncodeDecodeRawPacketFlowRecord(t *testing.T) {
 	rec := RawPacketFlow{

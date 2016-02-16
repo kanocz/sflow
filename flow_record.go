@@ -4,6 +4,8 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"net"
+	"reflect"
 )
 
 // RawPacketFlow is a raw Ethernet header flow record.
@@ -33,6 +35,32 @@ func (f ExtendedSwitchFlow) String() string {
 	type X ExtendedSwitchFlow
 	x := X(f)
 	return fmt.Sprintf("ExtendedSwitchFlow: %+v", x)
+}
+
+// This Structure must match the on-wire binary protocol exactly as it is filled dynamically
+type ExtendedGatewayFlow struct {
+	NextHopType          uint32
+	NextHop              net.IP
+	As                   uint32
+	SrcAs                uint32
+	SrcPeerAs            uint32
+	DstAsPathSegmentsLen uint32
+	DstAsPathSegments    []ExtendedGatewayFlowASPathSegment
+	CommunitiesLen       uint32
+	Communities          []uint32
+	LocalPref            uint32
+}
+
+type ExtendedGatewayFlowASPathSegment struct {
+	SegType uint32 // 1: Unordered Set || 2: Ordered Set
+	SegLen  uint32
+	Seg     []uint32
+}
+
+func (f ExtendedGatewayFlow) String() string {
+	type X ExtendedGatewayFlow
+	x := X(f)
+	return fmt.Sprintf("ExtendedGatewayFlow: %+v", x)
 }
 
 // RecordType returns the type of flow record.
@@ -166,4 +194,185 @@ func (f ExtendedSwitchFlow) encode(w io.Writer) error {
 	}
 
 	return binary.Write(w, binary.BigEndian, f)
+}
+
+// ExtendedGatewayFlow
+func (f ExtendedGatewayFlow) RecordType() int {
+	return TypeExtendedGatewayFlowRecord
+}
+
+func decodeStruct(r io.Reader, s interface{}) error {
+	var err error
+
+	structure := reflect.TypeOf(s)
+	data := reflect.ValueOf(s)
+
+	if (structure.Kind() == reflect.Interface || structure.Kind() == reflect.Ptr) {
+		structure = structure.Elem()
+	}
+
+	if (data.Kind() == reflect.Interface || data.Kind() == reflect.Ptr) {
+		data = data.Elem()
+	}
+
+	//fmt.Printf("Decoding into %+#v\n", s)
+
+	for i := 0; i < structure.NumField(); i++ {
+		field := data.Field(i)
+
+		//fmt.Printf("Kind: %s\n", field.Kind())
+
+		if field.CanSet() {
+			switch field.Kind() {
+			case reflect.Uint32:
+				var buf uint32
+				if err = binary.Read(r, binary.BigEndian, &buf); err != nil {
+					return err
+				}
+				field.SetUint(uint64(buf))
+			case reflect.Slice:
+				switch field.Type().Name() {
+				case "IP":
+					var bufferSize uint32
+					NextHopType := reflect.Indirect(data).FieldByName("NextHopType").Uint()
+					if NextHopType == 1 {
+						bufferSize = 4
+					} else if NextHopType == 2 {
+						bufferSize = 16
+					}
+
+					buffer := make([]byte, bufferSize)
+					if err = binary.Read(r, binary.BigEndian, &buffer); err != nil {
+						return err
+					}
+
+					field.SetBytes(buffer)
+				default:
+					switch reflect.SliceOf(field.Type()).String() {
+					case "[]uint32", "[][]uint32":
+						key := fmt.Sprintf("%sLen", structure.Field(i).Name)
+						tmp := reflect.Indirect(data).FieldByName(key)
+						bufferSize := tmp.Uint()
+						field.Set(reflect.MakeSlice(field.Type(), int(bufferSize), int(bufferSize)))
+
+						// Read directly from io
+						if err = binary.Read(r, binary.BigEndian, field.Addr().Interface()); err != nil {
+							return err
+						}
+					default:
+						key := fmt.Sprintf("%sLen", structure.Field(i).Name)
+						tmp := reflect.Indirect(data).FieldByName(key)
+						bufferSize := tmp.Uint()
+
+						field.Set(reflect.MakeSlice(field.Type(), int(bufferSize), int(bufferSize)))
+
+						for x:= 0; x < int(bufferSize); x++ {
+							decodeStruct(r, field.Index(x).Addr().Interface())
+						}
+					}
+				}
+
+			default:
+				return fmt.Errorf("Unhandled Field Kind: %s", field.Kind())
+			}
+		}
+	}
+
+
+	return nil
+}
+
+func decodeExtendedGatewayFlow(r io.Reader) (ExtendedGatewayFlow, error) {
+	var err error
+
+	f := ExtendedGatewayFlow{}
+	err = decodeStruct(r, &f)
+
+	return f, err
+}
+
+func (f ExtendedGatewayFlow) encodeStruct(w io.Writer, s interface{}) error {
+	var err error
+
+	structure := reflect.TypeOf(s)
+	data := reflect.ValueOf(s)
+
+	//fmt.Printf("Encoding %+#v\n", s)
+
+	for i := 0; i < structure.NumField(); i++ {
+		field := structure.Field(i)
+
+		switch field.Type.Kind() {
+		case reflect.Uint32:
+			if err = binary.Write(w, binary.BigEndian, uint32(data.FieldByIndex(field.Index).Uint())); err != nil {
+				return err
+			}
+		case reflect.Slice:
+			switch field.Type.Name() {
+			case "IP":
+				// We have to handle net.IP in a special way
+				if f.NextHopType == 1 {
+					if err = binary.Write(w, binary.BigEndian, data.FieldByIndex(field.Index).Bytes()[12:]); err != nil {
+						return err
+					}
+				} else if f.NextHopType == 2 {
+					if err = binary.Write(w, binary.BigEndian, data.FieldByIndex(field.Index).Bytes()); err != nil {
+						return err
+					}
+				}
+			default:
+				//fmt.Printf("SliceType: %s\n", reflect.SliceOf(field.Type).Elem())
+				switch reflect.SliceOf(field.Type).Elem().String() {
+				case "[]uint32":
+					// Write directly to io
+					if err = binary.Write(w, binary.BigEndian, data.FieldByIndex(field.Index).Interface()); err != nil {
+						return err
+					}
+				default:
+					for x:= 0; x < data.FieldByIndex(field.Index).Len(); x++ {
+						//fmt.Printf("Slice: %+#v\n", data.FieldByIndex(field.Index).Index(x))
+						f.encodeStruct(w, data.FieldByIndex(field.Index).Index(x).Interface())
+					}
+				}
+			}
+		default:
+			return fmt.Errorf("Unhandled Field Kind: %s", field.Type.Kind())
+		}
+	}
+
+	return err
+}
+
+func (f ExtendedGatewayFlow) encode(w io.Writer) error {
+	var err error
+
+	err = binary.Write(w, binary.BigEndian, uint32(f.RecordType()))
+	if err != nil {
+		fmt.Printf("error: %s", err)
+		return err
+	}
+
+	// Calculate Total Record Length
+	var nextHopSize uint32
+	if f.NextHopType == 1 {
+		//IPv4
+		nextHopSize = 4
+	} else {
+		//IPv6
+		nextHopSize = 16
+	}
+	//FIXME ... This is not correct and hard to calculate
+	encodedRecordLength := uint32(4 + nextHopSize + 4 + 4 + 4 + 4 + 8*f.DstAsPathSegmentsLen + 4 + 4*f.CommunitiesLen + 4)
+
+	//r := reflect.ValueOf(f)
+	//fmt.Printf("Total Size: %d\n", encodedRecordLength)
+
+	err = binary.Write(w, binary.BigEndian, uint32(encodedRecordLength))
+	if err != nil {
+		return err
+	}
+
+	err = f.encodeStruct(w, f)
+
+	return err
 }

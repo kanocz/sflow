@@ -141,7 +141,11 @@ func decodeFlowSample(r io.ReadSeeker) (Sample, error) {
 			if err != nil {
 				return nil, err
 			}
-
+		case TypeExtendedGatewayFlowRecord:
+			rec, err = decodeExtendedGatewayFlow(r)
+			if err != nil {
+				return nil, err
+			}
 		default:
 			_, err := r.Seek(int64(length), 1)
 			if err != nil {
