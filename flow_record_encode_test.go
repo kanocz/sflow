@@ -2,59 +2,10 @@ package sflow
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/fstelzer/sflow/flow_records"
-	"net"
 	"reflect"
 	"testing"
 )
-
-func TestEncodeDecodeExtendedGatewayFlowRecord(t *testing.T) {
-	rec := flow_records.ExtendedGatewayFlow{
-		NextHopType:          2,
-		NextHop:              net.ParseIP("2001:0db8:ac10:fe01::"), //IPv4 fails with the DeepEqual
-		As:                   1234,
-		SrcAs:                4321,
-		SrcPeerAs:            5678,
-		DstAsPathSegmentsLen: 1,
-		DstAsPathSegments: []flow_records.ExtendedGatewayFlowASPathSegment{{
-			SegType: 1,
-			SegLen:  3,
-			Seg:     []uint32{1234, 4321, 65535},
-		}},
-		CommunitiesLen: 3,
-		Communities:    []uint32{1, 18, 42011},
-		LocalPref:      255,
-	}
-
-	b := &bytes.Buffer{}
-
-	err := rec.Encode(b)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	fmt.Printf("Received binary results: %+#v\n", b)
-
-	// Skip the header section. It's 8 bytes.
-	var headerBytes [8]byte
-
-	_, err = b.Read(headerBytes[:])
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	decoded, err := flow_records.DecodeExtendedGatewayFlow(b)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	fmt.Printf("Got     : %+#v\n", decoded)
-	fmt.Printf("Expected: %+#v\n", rec)
-	if !reflect.DeepEqual(rec, decoded) {
-		t.Errorf("expected\n%+#v\n, got\n%+#v", rec, decoded)
-	}
-}
 
 func TestEncodeDecodeRawPacketFlowRecord(t *testing.T) {
 	rec := flow_records.RawPacketFlow{

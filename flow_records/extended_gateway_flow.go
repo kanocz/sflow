@@ -37,6 +37,27 @@ func (f ExtendedGatewayFlow) RecordType() int {
 	return TypeExtendedGatewayFlowRecord
 }
 
+func (f ExtendedGatewayFlow) calculateBinarySize() int {
+	var size int = 0
+
+	size += binary.Size(f.NextHopType)
+	size += binary.Size(f.NextHop)
+	size += binary.Size(f.As)
+	size += binary.Size(f.SrcAs)
+	size += binary.Size(f.SrcPeerAs)
+	size += binary.Size(f.DstAsPathSegmentsLen)
+	for _, segment := range f.DstAsPathSegments {
+		size += binary.Size(segment.SegType)
+		size += binary.Size(segment.SegLen)
+		size += binary.Size(segment.Seg)
+	}
+	size += binary.Size(f.CommunitiesLen)
+	size += binary.Size(f.Communities)
+	size += binary.Size(f.LocalPref)
+
+	return size
+}
+
 func DecodeExtendedGatewayFlow(r io.Reader) (ExtendedGatewayFlow, error) {
 	var err error
 
@@ -56,19 +77,7 @@ func (f ExtendedGatewayFlow) Encode(w io.Writer) error {
 	}
 
 	// Calculate Total Record Length
-	var nextHopSize uint32
-	if f.NextHopType == 1 {
-		//IPv4
-		nextHopSize = 4
-	} else {
-		//IPv6
-		nextHopSize = 16
-	}
-	//FIXME ... This is not correct and hard to calculate
-	encodedRecordLength := uint32(4 + nextHopSize + 4 + 4 + 4 + 4 + 8*f.DstAsPathSegmentsLen + 4 + 4*f.CommunitiesLen + 4)
-
-	//r := reflect.ValueOf(f)
-	//fmt.Printf("Total Size: %d\n", encodedRecordLength)
+	encodedRecordLength := f.calculateBinarySize()
 
 	err = binary.Write(w, binary.BigEndian, uint32(encodedRecordLength))
 	if err != nil {

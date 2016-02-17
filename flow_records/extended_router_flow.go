@@ -24,6 +24,17 @@ func (f ExtendedRouterFlow) RecordType() int {
 	return TypeExtendedRouterFlowRecord
 }
 
+func (f ExtendedRouterFlow) calculateBinarySize() int {
+	var size int = 0
+
+	size += binary.Size(f.NextHopType)
+	size += binary.Size(f.NextHop)
+	size += binary.Size(f.SrcMask)
+	size += binary.Size(f.DstMask)
+
+	return size
+}
+
 func DecodeExtendedRouterFlow(r io.Reader) (ExtendedRouterFlow, error) {
 	var err error
 
@@ -43,11 +54,7 @@ func (f ExtendedRouterFlow) Encode(w io.Writer) error {
 	}
 
 	// Calculate Total Record Length
-	//FIXME ... This is not correct and hard to calculate
-	encodedRecordLength := uint32(4 + 4 + 4 + 4 + 4 + 4 + 8 + 4 + 4 + 4)
-
-	//r := reflect.ValueOf(f)
-	//fmt.Printf("Total Size: %d\n", encodedRecordLength)
+	encodedRecordLength := f.calculateBinarySize()
 
 	err = binary.Write(w, binary.BigEndian, uint32(encodedRecordLength))
 	if err != nil {

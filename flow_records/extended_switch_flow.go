@@ -25,6 +25,17 @@ func (f ExtendedSwitchFlow) RecordType() int {
 	return TypeExtendedSwitchFlowRecord
 }
 
+func (f ExtendedSwitchFlow) calculateBinarySize() int {
+	var size int = 0
+
+	size += binary.Size(f)
+	/*size += binary.Size(f.NextHop)
+	size += binary.Size(f.SrcMask)
+	size += binary.Size(f.DstMask)*/
+
+	return size
+}
+
 func DecodedExtendedSwitchFlow(r io.Reader) (ExtendedSwitchFlow, error) {
 	f := ExtendedSwitchFlow{}
 
@@ -41,9 +52,9 @@ func (f ExtendedSwitchFlow) Encode(w io.Writer) error {
 		return err
 	}
 
-	encodedRecordLength := uint32(4 * 4) // 4 32-bit records
+	encodedRecordLength := f.calculateBinarySize()
 
-	err = binary.Write(w, binary.BigEndian, encodedRecordLength)
+	err = binary.Write(w, binary.BigEndian, uint32(encodedRecordLength))
 	if err != nil {
 		return err
 	}
