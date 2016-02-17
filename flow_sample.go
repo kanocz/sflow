@@ -6,26 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-)
-
-const (
-	TypeRawPacketFlowRecord     = 1
-	TypeEthernetFrameFlowRecord = 2
-	TypeIpv4FlowRecord          = 3
-	TypeIpv6FlowRecord          = 4
-
-	TypeExtendedSwitchFlowRecord     = 1001
-	TypeExtendedRouterFlowRecord     = 1002
-	TypeExtendedGatewayFlowRecord    = 1003
-	TypeExtendedUserFlowRecord       = 1004
-	TypeExtendedUrlFlowRecord        = 1005
-	TypeExtendedMlpsFlowRecord       = 1006
-	TypeExtendedNatFlowRecord        = 1007
-	TypeExtendedMlpsTunnelFlowRecord = 1008
-	TypeExtendedMlpsVcFlowRecord     = 1009
-	TypeExtendedMlpsFecFlowRecord    = 1010
-	TypeExtendedMlpsLvpFecFlowRecord = 1011
-	TypeExtendedVlanFlowRecord       = 1012
+	"github.com/fstelzer/sflow/flow_records"
 )
 
 type FlowSample struct {
@@ -132,23 +113,23 @@ func decodeFlowSample(r io.ReadSeeker) (Sample, error) {
 		var rec Record
 
 		switch format {
-		case TypeRawPacketFlowRecord:
-			rec, err = decodeRawPacketFlow(r)
+		case flow_records.TypeRawPacketFlowRecord:
+			rec, err = flow_records.DecodeRawPacketFlow(r)
 			if err != nil {
 				return nil, err
 			}
-		case TypeExtendedSwitchFlowRecord:
-			rec, err = decodedExtendedSwitchFlow(r)
+		case flow_records.TypeExtendedSwitchFlowRecord:
+			rec, err = flow_records.DecodedExtendedSwitchFlow(r)
 			if err != nil {
 				return nil, err
 			}
-		case TypeExtendedRouterFlowRecord:
-			rec, err = decodeExtendedRouterFlow(r)
+		case flow_records.TypeExtendedRouterFlowRecord:
+			rec, err = flow_records.DecodeExtendedRouterFlow(r)
 			if err != nil {
 				return nil, err
 			}
-		case TypeExtendedGatewayFlowRecord:
-			rec, err = decodeExtendedGatewayFlow(r)
+		case flow_records.TypeExtendedGatewayFlowRecord:
+			rec, err = flow_records.DecodeExtendedGatewayFlow(r)
 			if err != nil {
 				return nil, err
 			}
@@ -175,7 +156,7 @@ func (s *FlowSample) encode(w io.Writer) error {
 	buf := &bytes.Buffer{}
 
 	for _, rec := range s.Records {
-		err = rec.encode(buf)
+		err = rec.Encode(buf)
 		if err != nil {
 			return ErrEncodingRecord
 		}

@@ -285,7 +285,7 @@ func decodeGenericInterfaceCountersRecord(r io.Reader, length uint32) (GenericIn
 	return c, readFields(b, fields)
 }
 
-func (c GenericInterfaceCounters) encode(w io.Writer) error {
+func (c GenericInterfaceCounters) Encode(w io.Writer) error {
 	var err error
 
 	err = binary.Write(w, binary.BigEndian, uint32(c.RecordType()))
@@ -334,7 +334,7 @@ func decodeEthernetCountersRecord(r io.Reader, length uint32) (EthernetCounters,
 	return c, readFields(b, fields)
 }
 
-func (c EthernetCounters) encode(w io.Writer) error {
+func (c EthernetCounters) Encode(w io.Writer) error {
 	var err error
 
 	err = binary.Write(w, binary.BigEndian, uint32(c.RecordType()))
@@ -388,7 +388,7 @@ func decodeTokenRingCountersRecord(r io.Reader, length uint32) (TokenRingCounter
 	return c, readFields(b, fields)
 }
 
-func (c TokenRingCounters) encode(w io.Writer) error {
+func (c TokenRingCounters) Encode(w io.Writer) error {
 	var err error
 
 	err = binary.Write(w, binary.BigEndian, uint32(c.RecordType()))
@@ -438,7 +438,7 @@ func decodeVgCountersRecord(r io.Reader, length uint32) (VgCounters, error) {
 	return c, readFields(b, fields)
 }
 
-func (c VgCounters) encode(w io.Writer) error {
+func (c VgCounters) Encode(w io.Writer) error {
 	var err error
 
 	err = binary.Write(w, binary.BigEndian, uint32(c.RecordType()))
@@ -480,7 +480,7 @@ func decodeVlanCountersRecord(r io.Reader, length uint32) (VlanCounters, error) 
 	return c, readFields(b, fields)
 }
 
-func (c VlanCounters) encode(w io.Writer) error {
+func (c VlanCounters) Encode(w io.Writer) error {
 	var err error
 
 	err = binary.Write(w, binary.BigEndian, uint32(c.RecordType()))
@@ -521,7 +521,7 @@ func decodeProcessorCountersRecord(r io.Reader, length uint32) (ProcessorCounter
 	return c, readFields(b, fields)
 }
 
-func (c ProcessorCounters) encode(w io.Writer) error {
+func (c ProcessorCounters) Encode(w io.Writer) error {
 	var err error
 
 	err = binary.Write(w, binary.BigEndian, uint32(c.RecordType()))
@@ -577,7 +577,7 @@ func decodeHostCPUCountersRecord(r io.Reader, length uint32) (HostCPUCounters, e
 	return c, readFields(b, fields)
 }
 
-func (c HostCPUCounters) encode(w io.Writer) error {
+func (c HostCPUCounters) Encode(w io.Writer) error {
 	var err error
 
 	err = binary.Write(w, binary.BigEndian, uint32(c.RecordType()))
@@ -624,7 +624,7 @@ func decodeHostMemoryCountersRecord(r io.Reader, length uint32) (HostMemoryCount
 	return c, readFields(b, fields)
 }
 
-func (c HostMemoryCounters) encode(w io.Writer) error {
+func (c HostMemoryCounters) Encode(w io.Writer) error {
 	var err error
 
 	err = binary.Write(w, binary.BigEndian, uint32(c.RecordType()))
@@ -669,7 +669,7 @@ func decodeHostDiskCountersRecord(r io.Reader, length uint32) (HostDiskCounters,
 	return c, readFields(b, fields)
 }
 
-func (c HostDiskCounters) encode(w io.Writer) error {
+func (c HostDiskCounters) Encode(w io.Writer) error {
 	var err error
 
 	err = binary.Write(w, binary.BigEndian, uint32(c.RecordType()))
@@ -713,7 +713,7 @@ func decodeHostNetCountersRecord(r io.Reader, length uint32) (HostNetCounters, e
 	return c, readFields(b, fields)
 }
 
-func (c HostNetCounters) encode(w io.Writer) error {
+func (c HostNetCounters) Encode(w io.Writer) error {
 	var err error
 
 	err = binary.Write(w, binary.BigEndian, uint32(c.RecordType()))

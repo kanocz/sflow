@@ -30,7 +30,7 @@ func TestEncodeDecodeGenericInterfaceCountersRecord(t *testing.T) {
 
 	b := &bytes.Buffer{}
 
-	err := rec.encode(b)
+	err := rec.Encode(b)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +81,7 @@ func TestEncodeDecodeHostCPUCountersRecord(t *testing.T) {
 
 	b := &bytes.Buffer{}
 
-	err := rec.encode(b)
+	err := rec.Encode(b)
 	if err != nil {
 		t.Fatal(err)
 	}

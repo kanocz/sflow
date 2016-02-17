@@ -6,17 +6,18 @@ import (
 	"net"
 	"reflect"
 	"testing"
+	"github.com/fstelzer/sflow/flow_records"
 )
 
 func TestEncodeDecodeExtendedGatewayFlowRecord(t *testing.T) {
-	rec := ExtendedGatewayFlow{
-		NextHopType:          1,
-		NextHop:              net.ParseIP("1.1.1.1"),
+	rec := flow_records.ExtendedGatewayFlow{
+		NextHopType:          2,
+		NextHop:              net.ParseIP("2001:0db8:ac10:fe01::"), //IPv4 fails with the DeepEqual
 		As:                   1234,
 		SrcAs:                4321,
 		SrcPeerAs:            5678,
 		DstAsPathSegmentsLen: 1,
-		DstAsPathSegments: []ExtendedGatewayFlowASPathSegment{{
+		DstAsPathSegments: []flow_records.ExtendedGatewayFlowASPathSegment{{
 			SegType: 1,
 			SegLen:  3,
 			Seg:     []uint32{1234, 4321, 65535},
@@ -28,7 +29,7 @@ func TestEncodeDecodeExtendedGatewayFlowRecord(t *testing.T) {
 
 	b := &bytes.Buffer{}
 
-	err := rec.encode(b)
+	err := rec.Encode(b)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,7 +44,7 @@ func TestEncodeDecodeExtendedGatewayFlowRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	decoded, err := decodeExtendedGatewayFlow(b)
+	decoded, err := flow_records.DecodeExtendedGatewayFlow(b)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,7 +86,7 @@ func TestEncodeDecodeRawPacketFlowRecord(t *testing.T) {
 
 	b := &bytes.Buffer{}
 
-	err := rec.encode(b)
+	err := rec.Encode(b)
 	if err != nil {
 		t.Fatal(err)
 	}

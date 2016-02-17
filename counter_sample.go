@@ -171,7 +171,7 @@ func (s *CounterSample) encode(w io.Writer) error {
 	buf := &bytes.Buffer{}
 
 	for _, rec := range s.Records {
-		err = rec.encode(buf)
+		err = rec.Encode(buf)
 		if err != nil {
 			return ErrEncodingRecord
 		}
