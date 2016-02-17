@@ -51,8 +51,15 @@ type IPv6Header struct {
 }
 
 type TcpHeader struct {
-	//struct mytcphdr
-	//{
+	SrcPort  uint16
+	DstPort  uint16
+	Seq      uint32
+	Ack      uint32
+	UnUsed   uint8
+	Flags    uint8
+	Window   uint16
+	Checksum uint16
+	Urgent   uint16
 	//uint16_t th_sport;		/* source port */
 	//uint16_t th_dport;		/* destination port */
 	//uint32_t th_seq;		/* sequence number */
@@ -66,13 +73,10 @@ type TcpHeader struct {
 }
 
 type UdpHeader struct {
-	///* and UDP */
-	//struct myudphdr {
-	//uint16_t uh_sport;           /* source port */
-	//uint16_t uh_dport;           /* destination port */
-	//uint16_t uh_ulen;            /* udp length */
-	//uint16_t uh_sum;             /* udp checksum */
-	//};
+	SrcPort  uint16
+	DstPort  uint16
+	Length   uint16
+	Checksum uint16
 }
 
 type IcmpHeader struct {
@@ -99,15 +103,34 @@ func (f RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 	var err error
 
 	if ipVersion == 4 {
-		IPHeader := IPv4Header{}
+		ip := IPv4Header{}
 
 		flags := map[string]string{
 			"ipVersion": "4",
 		}
-		if err = Decode(h, &IPHeader, flags); err != nil {
+		if err = Decode(h, &ip, flags); err != nil {
 			return err
 		}
-		f.DecodedHeader["ip"] = IPHeader
+		f.DecodedHeader["ip"] = ip
+
+		//Can we decode a following Layer4 Protocol Header?
+		switch ip.Protocol {
+		case IPProtocolTCP:
+			tcp := TcpHeader{}
+			if err = Decode(h, &tcp, flags); err != nil {
+				return err
+			}
+			f.DecodedHeader["tcp"] = tcp
+		case IPProtocolUDP:
+			udp := UdpHeader{}
+			if err = Decode(h, &udp, flags); err != nil {
+				return err
+			}
+			f.DecodedHeader["udp"] = udp
+		default:
+			fmt.Printf("Unknown Protocol: %d\n", ip.Protocol)
+		}
+
 	} else if ipVersion == 6 {
 		//FIXME: IPv6 has complex Header Extensions
 		//FIXME: IMPLEMENT ME
@@ -169,7 +192,7 @@ func (f RawPacketFlow) decodeHeader(headerType uint32) error {
 		fmt.Printf("Unknown Headertype: %d\n", headerType)
 	}
 
-	//fmt.Printf("Headers: %+#v\n", f.DecodedHeader)
+	fmt.Printf("Headers: %+#v\n", f.DecodedHeader)
 	return err
 }
 

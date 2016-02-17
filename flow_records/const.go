@@ -55,6 +55,12 @@ const (
 	HeaderProtocolIPv6              = 12
 )
 
+const (
+	IPProtocolICMP = 1
+	IPProtocolTCP  = 6
+	IPProtocolUDP  = 17
+)
+
 // Raw Packet Header Types
 const (
 	HeaderTypeIPv4 = "0800"
