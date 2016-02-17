@@ -165,9 +165,8 @@ func (f RawPacketFlow) decodeHeader(headerType uint32) error {
 		f.decodeIPHeader(4, h)
 	case HeaderProtocolIPv6:
 		f.decodeIPHeader(6, h)
-	}
-	if headerType == HeaderProtocolEthernetISO8023 {
-
+	default:
+		fmt.Printf("Unknown Headertype: %d\n", headerType)
 	}
 
 	//fmt.Printf("Headers: %+#v\n", f.DecodedHeader)
@@ -220,7 +219,9 @@ func DecodeRawPacketFlow(r io.Reader) (RawPacketFlow, error) {
 	f.Header = f.Header[:f.HeaderSize]
 
 	// Try to decode the retrieved headers
-	f.decodeHeader(f.Protocol)
+	if err = f.decodeHeader(f.Protocol); err != nil {
+		return f, err
+	}
 
 	return f, err
 }

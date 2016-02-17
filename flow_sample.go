@@ -96,7 +96,6 @@ func decodeFlowSample(r io.ReadSeeker) (Sample, error) {
 		return nil, err
 	}
 
-	fmt.Printf("Got %d records\n", s.numRecords)
 	for i := uint32(0); i < s.numRecords; i++ {
 		format, length := uint32(0), uint32(0)
 
