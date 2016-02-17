@@ -32,4 +32,32 @@ const (
 	// The value is set to maximum transmission unit (MTU), as the header of a network packet
 	// may not exceed the MTU.
 	MaximumHeaderLength = 1500
+
+	MinimumEthernetHeaderSize = 14
+	//#define NFT_8022_SIZ 3
+	//#define NFT_MAX_8023_LEN 1500
+	//#define NFT_MIN_SIZ (NFT_ETHHDR_SIZ + sizeof(struct myiphdr))
+)
+
+// Header Protocol Types found in Raw Packet Flow Record
+const (
+	HeaderProtocolEthernetISO8023   = 1
+	HeaderProtocolISO88024Tokenbus  = 2
+	HeaderProtocolISO88024Tokenring = 3
+	HeaderProtocolFDDI              = 4
+	HeaderProtocolFrameRelay        = 5
+	HeaderProtocolX24               = 6
+	HeaderProtocolPPP               = 7
+	HeaderProtocolSMDS              = 8
+	HeaderProtocolAAL5              = 9
+	HeaderProtocolAAL5IP            = 10
+	HeaderProtocolIPv4              = 11
+	HeaderProtocolIPv6              = 12
+)
+
+// Raw Packet Header Types
+const (
+	HeaderTypeIPv4 = "0800"
+	HeaderTypeIPv6 = "86DD"
+	//IPX: type_len == 0x0200 || type_len == 0x0201 || type_len == 0x0600
 )

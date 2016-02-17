@@ -62,7 +62,11 @@ func DecodeExtendedGatewayFlow(r io.Reader) (ExtendedGatewayFlow, error) {
 	var err error
 
 	f := ExtendedGatewayFlow{}
-	err = Decode(r, &f)
+
+	flags := map[string]string{
+		"ipVersionLookupField": "NextHopType",
+	}
+	err = Decode(r, &f, flags)
 
 	return f, err
 }

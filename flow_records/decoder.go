@@ -7,8 +7,24 @@ import (
 	"reflect"
 )
 
-func Decode(r io.Reader, s interface{}) error {
+func Decode(r io.Reader, s interface{}, flag_vars ...map[string]string) error {
 	var err error
+	var ipVersion string = "4"
+	var ipVersionLookupField string
+
+	var flags map[string]string
+
+	if len(flag_vars) > 0 {
+		flags = flag_vars[0]
+
+		if _, found := flags["ipVersion"]; found {
+			ipVersion = flags["ipVersion"]
+		}
+
+		if _, found := flags["ipVersionLookupField"]; found {
+			ipVersionLookupField = flags["ipVersionLookupField"]
+		}
+	}
 
 	structure := reflect.TypeOf(s)
 	data := reflect.ValueOf(s)
@@ -30,21 +46,38 @@ func Decode(r io.Reader, s interface{}) error {
 
 		if field.CanSet() {
 			switch field.Kind() {
-			case reflect.Uint32:
-				var buf uint32
-				if err = binary.Read(r, binary.BigEndian, &buf); err != nil {
+			case reflect.Uint8, reflect.Uint16, reflect.Uint32:
+				field.Set(reflect.New(field.Type()).Elem())
+				if err = binary.Read(r, binary.BigEndian, field.Addr().Interface()); err != nil {
 					return err
 				}
-				field.SetUint(uint64(buf))
+			case reflect.Array:
+				buf := reflect.ArrayOf(field.Len(), field.Type().Elem())
+				field.Set(reflect.New(buf).Elem())
+				if err = binary.Read(r, binary.BigEndian, field.Addr().Interface()); err != nil {
+					return err
+				}
 			case reflect.Slice:
 				switch field.Type().Name() {
 				case "IP":
 					var bufferSize uint32
-					NextHopType := reflect.Indirect(data).FieldByName("NextHopType").Uint()
-					if NextHopType == 2 {
-						bufferSize = 16
+
+					if ipVersionLookupField != "" {
+						NextHopType := reflect.Indirect(data).FieldByName(ipVersionLookupField).Uint()
+						if NextHopType == 2 {
+							bufferSize = 16
+						} else {
+							bufferSize = 4
+						}
 					} else {
-						bufferSize = 4
+						switch ipVersion {
+						case "4":
+							bufferSize = 4
+						case "6":
+							bufferSize = 16
+						default:
+							return fmt.Errorf("Invalid IP Version given")
+						}
 					}
 
 					buffer := make([]byte, bufferSize)
@@ -73,7 +106,7 @@ func Decode(r io.Reader, s interface{}) error {
 						field.Set(reflect.MakeSlice(field.Type(), int(bufferSize), int(bufferSize)))
 
 						for x := 0; x < int(bufferSize); x++ {
-							Decode(r, field.Index(x).Addr().Interface())
+							Decode(r, field.Index(x).Addr().Interface(), flags)
 						}
 					}
 				}

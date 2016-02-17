@@ -39,7 +39,11 @@ func DecodeExtendedRouterFlow(r io.Reader) (ExtendedRouterFlow, error) {
 	var err error
 
 	f := ExtendedRouterFlow{}
-	err = Decode(r, &f)
+
+	flags := map[string]string{
+		"ipVersionLookupField": "NextHopType",
+	}
+	err = Decode(r, &f, flags)
 
 	return f, err
 }
