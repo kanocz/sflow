@@ -5,8 +5,8 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"io"
 	"github.com/fstelzer/sflow/flow_records"
+	"io"
 )
 
 type FlowSample struct {

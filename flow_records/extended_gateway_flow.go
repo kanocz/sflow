@@ -8,28 +8,28 @@ import (
 )
 
 type ExtendedGatewayFlow struct {
-NextHopType          uint32
-NextHop              net.IP
-As                   uint32
-SrcAs                uint32
-SrcPeerAs            uint32
-DstAsPathSegmentsLen uint32
-DstAsPathSegments    []ExtendedGatewayFlowASPathSegment
-CommunitiesLen       uint32
-Communities          []uint32
-LocalPref            uint32
+	NextHopType          uint32
+	NextHop              net.IP
+	As                   uint32
+	SrcAs                uint32
+	SrcPeerAs            uint32
+	DstAsPathSegmentsLen uint32
+	DstAsPathSegments    []ExtendedGatewayFlowASPathSegment
+	CommunitiesLen       uint32
+	Communities          []uint32
+	LocalPref            uint32
 }
 
 type ExtendedGatewayFlowASPathSegment struct {
-SegType uint32 // 1: Unordered Set || 2: Ordered Set
-SegLen  uint32
-Seg     []uint32
+	SegType uint32 // 1: Unordered Set || 2: Ordered Set
+	SegLen  uint32
+	Seg     []uint32
 }
 
 func (f ExtendedGatewayFlow) String() string {
-type X ExtendedGatewayFlow
-x := X(f)
-return fmt.Sprintf("ExtendedGatewayFlow: %+v", x)
+	type X ExtendedGatewayFlow
+	x := X(f)
+	return fmt.Sprintf("ExtendedGatewayFlow: %+v", x)
 }
 
 // ExtendedGatewayFlow

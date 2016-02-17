@@ -3,10 +3,10 @@ package sflow
 import (
 	"bytes"
 	"fmt"
+	"github.com/fstelzer/sflow/flow_records"
 	"net"
 	"reflect"
 	"testing"
-	"github.com/fstelzer/sflow/flow_records"
 )
 
 func TestEncodeDecodeExtendedGatewayFlowRecord(t *testing.T) {

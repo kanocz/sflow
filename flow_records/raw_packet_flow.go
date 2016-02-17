@@ -13,8 +13,6 @@ type RawPacketFlow struct {
 	Stripped    uint32
 	HeaderSize  uint32
 	Header      []byte
-	DstMAC		[6]byte
-	SrcMAC		[6]byte
 }
 
 func (f RawPacketFlow) String() string {

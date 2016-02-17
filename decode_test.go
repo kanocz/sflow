@@ -1,9 +1,9 @@
 package sflow
 
 import (
+	"github.com/fstelzer/sflow/flow_records"
 	"os"
 	"testing"
-	"github.com/fstelzer/sflow/flow_records"
 )
 
 func TestDecodeGenericEthernetCounterSample(t *testing.T) {

@@ -2,9 +2,9 @@ package sflow
 
 import (
 	"bytes"
+	"github.com/fstelzer/sflow/flow_records"
 	"os"
 	"testing"
-	"github.com/fstelzer/sflow/flow_records"
 )
 
 func TestDecodeEncodeAndDecodeFlowSample(t *testing.T) {
