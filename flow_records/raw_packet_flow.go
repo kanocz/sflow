@@ -20,8 +20,8 @@ type RawPacketFlow struct {
 }
 
 type EthernetHeader struct {
-	DstMac [6]byte
-	SrcMac [6]byte
+	DstMac net.HardwareAddr
+	SrcMac net.HardwareAddr
 }
 
 /* define my own IP header struct - to ease portability */
@@ -95,7 +95,7 @@ func (f RawPacketFlow) RecordType() int {
 	return TypeRawPacketFlowRecord
 }
 
-func (f RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
+func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 	var err error
 
 	if ipVersion == 4 {
@@ -152,7 +152,7 @@ func (f RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 	return nil
 }
 
-func (f RawPacketFlow) decodeHeader(headerType uint32) error {
+func (f *RawPacketFlow) decodeHeader(headerType uint32) error {
 	var err error = nil
 
 	f.DecodedHeader = make(map[string]interface{})

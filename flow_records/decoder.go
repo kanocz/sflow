@@ -86,6 +86,12 @@ func Decode(r io.Reader, s interface{}, flag_vars ...map[string]string) error {
 					}
 
 					field.SetBytes(buffer)
+				case "HardwareAddr":
+					buffer := make([]byte, 6)
+					if err = binary.Read(r, binary.BigEndian, &buffer); err != nil {
+						return err
+					}
+					field.SetBytes(buffer)
 				default:
 					switch reflect.SliceOf(field.Type()).String() {
 					case "[]uint32", "[][]uint32":

@@ -51,6 +51,7 @@ func TestEncodeDecodeRawPacketFlowRecord(t *testing.T) {
 	}
 
 	decoded, err := flow_records.DecodeRawPacketFlow(b)
+	decoded.DecodedHeader = nil // We don't care if we decoded the header here
 	if err != nil {
 		t.Fatal(err)
 	}
