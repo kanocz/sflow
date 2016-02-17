@@ -3,6 +3,7 @@ package sflow
 import (
 	"os"
 	"testing"
+	"github.com/fstelzer/sflow/flow_records"
 )
 
 func TestDecodeGenericEthernetCounterSample(t *testing.T) {
@@ -152,7 +153,7 @@ func TestDecodeFlow1(t *testing.T) {
 		t.Fatalf("expected 2 records, got %d", len(sample.Records))
 	}
 
-	rec, ok := sample.Records[0].(RawPacketFlow)
+	rec, ok := sample.Records[0].(flow_records.RawPacketFlow)
 	if !ok {
 		t.Fatalf("expected a RawPacketFlowRecords, got %T", sample.Records[0])
 	}

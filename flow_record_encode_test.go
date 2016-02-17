@@ -57,7 +57,7 @@ func TestEncodeDecodeExtendedGatewayFlowRecord(t *testing.T) {
 }
 
 func TestEncodeDecodeRawPacketFlowRecord(t *testing.T) {
-	rec := RawPacketFlow{
+	rec := flow_records.RawPacketFlow{
 		Protocol:    1,
 		FrameLength: 318,
 		Stripped:    4,
@@ -99,7 +99,7 @@ func TestEncodeDecodeRawPacketFlowRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	decoded, err := decodeRawPacketFlow(b)
+	decoded, err := flow_records.DecodeRawPacketFlow(b)
 	if err != nil {
 		t.Fatal(err)
 	}
