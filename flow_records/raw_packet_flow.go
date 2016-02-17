@@ -80,12 +80,8 @@ type UdpHeader struct {
 }
 
 type IcmpHeader struct {
-	//struct myicmphdr
-	//{
-	//uint8_t type;		/* message type */
-	//uint8_t code;		/* type sub-code */
-	///* ignore the rest */
-	//};
+	Type uint8
+	Code uint8
 }
 
 func (f RawPacketFlow) String() string {
@@ -127,6 +123,12 @@ func (f RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 				return err
 			}
 			f.DecodedHeader["udp"] = udp
+		case IPProtocolICMP:
+			icmp := IcmpHeader{}
+			if err = Decode(h, &icmp, flags); err != nil {
+				return err
+			}
+			f.DecodedHeader["icmp"] = icmp
 		default:
 			fmt.Printf("Unknown Protocol: %d\n", ip.Protocol)
 		}
@@ -192,7 +194,7 @@ func (f RawPacketFlow) decodeHeader(headerType uint32) error {
 		fmt.Printf("Unknown Headertype: %d\n", headerType)
 	}
 
-	fmt.Printf("Headers: %+#v\n", f.DecodedHeader)
+	//fmt.Printf("Headers: %+#v\n", f.DecodedHeader)
 	return err
 }
 
