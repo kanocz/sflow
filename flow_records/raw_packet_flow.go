@@ -3,6 +3,7 @@ package flow_records
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -20,8 +21,20 @@ type RawPacketFlow struct {
 }
 
 type EthernetHeader struct {
-	DstMac net.HardwareAddr
-	SrcMac net.HardwareAddr
+	DstMac HardwareAddr
+	SrcMac HardwareAddr
+}
+
+type HardwareAddr net.HardwareAddr
+func (e HardwareAddr) MarshalJSON() ([]byte, error){
+	x := net.HardwareAddr(e)
+	return json.Marshal(fmt.Sprintf("%s", x))
+}
+
+func (e *HardwareAddr) UnmarshalJSON(value []byte) error {
+	x, err := net.ParseMAC(string(value))
+	*e = HardwareAddr(x)
+	return err
 }
 
 /* define my own IP header struct - to ease portability */
@@ -118,7 +131,7 @@ func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 			}
 			f.DecodedHeader["icmp"] = icmp
 		default:
-			fmt.Printf("Unknown Protocol: %d\n", ip.Protocol)
+			//fmt.Printf("Unknown Protocol: %d\n", ip.Protocol)
 		}
 
 	} else if ipVersion == 6 {

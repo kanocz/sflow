@@ -81,7 +81,7 @@ func Decode(r io.Reader, s interface{}) error {
 					}
 
 					field.SetBytes(buffer)
-				case reflect.TypeOf(net.HardwareAddr{}):
+				case reflect.TypeOf(HardwareAddr{}):
 					buffer := make([]byte, 6)
 					if err = binary.Read(r, binary.BigEndian, &buffer); err != nil {
 						return err
