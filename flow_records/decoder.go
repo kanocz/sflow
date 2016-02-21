@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"net"
 	"reflect"
 )
 
@@ -30,20 +31,24 @@ func Decode(r io.Reader, s interface{}) error {
 
 		if field.CanSet() {
 			switch field.Kind() {
-			case reflect.Uint8, reflect.Uint16, reflect.Uint32:
+			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+				reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				// We can decode these kinds directly
 				field.Set(reflect.New(field.Type()).Elem())
 				if err = binary.Read(r, binary.BigEndian, field.Addr().Interface()); err != nil {
 					return err
 				}
 			case reflect.Array:
+				// For Arrays we have to create the correct structure first but can then decode directly into them
 				buf := reflect.ArrayOf(field.Len(), field.Type().Elem())
 				field.Set(reflect.New(buf).Elem())
 				if err = binary.Read(r, binary.BigEndian, field.Addr().Interface()); err != nil {
 					return err
 				}
 			case reflect.Slice:
-				switch field.Type().Name() {
-				case "IP":
+				// For slices we need to determine the length somehow
+				switch field.Type() { // Some types (IP/HardwareAddr) are handled specifically
+				case reflect.TypeOf(net.IP{}):
 					var bufferSize uint32
 
 					ipVersion := structure.Field(i).Tag.Get("ipVersion")
@@ -76,33 +81,35 @@ func Decode(r io.Reader, s interface{}) error {
 					}
 
 					field.SetBytes(buffer)
-				case "HardwareAddr":
+				case reflect.TypeOf(net.HardwareAddr{}):
 					buffer := make([]byte, 6)
 					if err = binary.Read(r, binary.BigEndian, &buffer); err != nil {
 						return err
 					}
 					field.SetBytes(buffer)
 				default:
-					switch reflect.SliceOf(field.Type()).String() {
-					case "[]uint32", "[][]uint32":
-						key := fmt.Sprintf("%sLen", structure.Field(i).Name)
-						tmp := reflect.Indirect(data).FieldByName(key)
-						bufferSize := tmp.Uint()
+					// Look up the slices length via the lengthLookUp Tag Field
+					lengthField := structure.Field(i).Tag.Get("lengthLookUp")
+					if lengthField == "" {
+						return fmt.Errorf("Variable length slice without a defined lengthLookUp. Please specify length lookup field via struct tag: `lengthLookUp:\"fieldname\"`")
+					}
+					bufferSize := reflect.Indirect(data).FieldByName(lengthField).Uint()
+
+					switch field.Type().Elem().Kind() {
+					case reflect.Struct, reflect.Slice, reflect.Array:
+						// For slices of unspecified types we call Decode revursively for every element
+						field.Set(reflect.MakeSlice(field.Type(), int(bufferSize), int(bufferSize)))
+
+						for x := 0; x < int(bufferSize); x++ {
+							Decode(r, field.Index(x).Addr().Interface())
+						}
+					default:
+						// For slices of defined length types we can look up the length and decode directly
 						field.Set(reflect.MakeSlice(field.Type(), int(bufferSize), int(bufferSize)))
 
 						// Read directly from io
 						if err = binary.Read(r, binary.BigEndian, field.Addr().Interface()); err != nil {
 							return err
-						}
-					default:
-						key := fmt.Sprintf("%sLen", structure.Field(i).Name)
-						tmp := reflect.Indirect(data).FieldByName(key)
-						bufferSize := tmp.Uint()
-
-						field.Set(reflect.MakeSlice(field.Type(), int(bufferSize), int(bufferSize)))
-
-						for x := 0; x < int(bufferSize); x++ {
-							Decode(r, field.Index(x).Addr().Interface())
 						}
 					}
 				}

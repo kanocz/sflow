@@ -14,16 +14,16 @@ type ExtendedGatewayFlow struct {
 	SrcAs                uint32
 	SrcPeerAs            uint32
 	DstAsPathSegmentsLen uint32
-	DstAsPathSegments    []ExtendedGatewayFlowASPathSegment
+	DstAsPathSegments    []ExtendedGatewayFlowASPathSegment `lengthLookUp:"DstAsPathSegmentsLen"`
 	CommunitiesLen       uint32
-	Communities          []uint32
+	Communities          []uint32 `lengthLookUp:"CommunitiesLen"`
 	LocalPref            uint32
 }
 
 type ExtendedGatewayFlowASPathSegment struct {
 	SegType uint32 // 1: Unordered Set || 2: Ordered Set
 	SegLen  uint32
-	Seg     []uint32
+	Seg     []uint32 `lengthLookUp:"SegLen"`
 }
 
 func (f ExtendedGatewayFlow) String() string {
