@@ -71,7 +71,7 @@ func Decode(r io.Reader, s interface{}) error {
 								return fmt.Errorf("Invalid Value found in ipVersionLookUp Type Field. Expected 1 or 2 and got: %d", ipType)
 							}
 						case "":
-							return fmt.Errorf("Unable to determine which IP Version to read for field %s\n", field.Type().Name())
+							return fmt.Errorf("Unable to determine which IP Version to read for field %s\n", structure.Field(i).Name)
 						}
 					}
 

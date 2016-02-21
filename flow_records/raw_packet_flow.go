@@ -34,8 +34,8 @@ type IPv4Header struct {
 	Ttl           uint8
 	Protocol      uint8
 	Check         uint16
-	SrcAddr       net.IP `ipVersion:4`
-	DstAddr       net.IP `ipVersion:4`
+	SrcAddr       net.IP `ipVersion:"4"`
+	DstAddr       net.IP `ipVersion:"4"`
 }
 
 type IPv6Header struct {
@@ -46,8 +46,8 @@ type IPv6Header struct {
 	PayloadLength      uint16
 	NextHeader         uint8
 	Ttl                uint8
-	SrcAddr            net.IP `ipVersion:6`
-	DstAddr            net.IP `ipVersion:6`
+	SrcAddr            net.IP `ipVersion:"6"`
+	DstAddr            net.IP `ipVersion:"6"`
 }
 
 type TcpHeader struct {
@@ -92,6 +92,7 @@ func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 		ip := IPv4Header{}
 
 		if err = Decode(h, &ip); err != nil {
+			fmt.Printf("Err: %s\n", err)
 			return err
 		}
 		f.DecodedHeader["ip"] = ip
@@ -117,7 +118,7 @@ func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 			}
 			f.DecodedHeader["icmp"] = icmp
 		default:
-			//fmt.Printf("Unknown Protocol: %d\n", ip.Protocol)
+			fmt.Printf("Unknown Protocol: %d\n", ip.Protocol)
 		}
 
 	} else if ipVersion == 6 {
@@ -166,14 +167,22 @@ func (f *RawPacketFlow) decodeHeader(headerType uint32) error {
 
 		switch hex.EncodeToString(buffer) {
 		case HeaderTypeIPv4:
-			f.decodeIPHeader(4, h)
+			if err = f.decodeIPHeader(4, h); err != nil {
+				return err
+			}
 		case HeaderTypeIPv6:
-			f.decodeIPHeader(6, h)
+			if err = f.decodeIPHeader(6, h); err != nil {
+				return err
+			}
 		}
 	case HeaderProtocolIPv4:
-		f.decodeIPHeader(4, h)
+		if err = f.decodeIPHeader(4, h); err != nil {
+			return err
+		}
 	case HeaderProtocolIPv6:
-		f.decodeIPHeader(6, h)
+		if err = f.decodeIPHeader(6, h); err != nil {
+			return err
+		}
 	default:
 		fmt.Printf("Unknown Headertype: %d\n", headerType)
 	}
