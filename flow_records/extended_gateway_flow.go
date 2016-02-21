@@ -9,7 +9,7 @@ import (
 
 type ExtendedGatewayFlow struct {
 	NextHopType          uint32
-	NextHop              net.IP
+	NextHop              net.IP `ipVersionLookUp:"NextHopType"`
 	As                   uint32
 	SrcAs                uint32
 	SrcPeerAs            uint32
@@ -63,10 +63,7 @@ func DecodeExtendedGatewayFlow(r io.Reader) (ExtendedGatewayFlow, error) {
 
 	f := ExtendedGatewayFlow{}
 
-	flags := map[string]string{
-		"ipVersionLookupField": "NextHopType",
-	}
-	err = Decode(r, &f, flags)
+	err = Decode(r, &f)
 
 	return f, err
 }

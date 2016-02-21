@@ -26,19 +26,43 @@ func Encode(w io.Writer, s interface{}) error {
 		case reflect.Slice:
 			switch field.Type.Name() {
 			case "IP":
-				// We have to handle net.IP in a special way
-				NextHopType := reflect.Indirect(data).FieldByName("NextHopType").Uint()
-				if NextHopType == 1 {
+				var bufferSize uint32
+
+				ipVersion := structure.Field(i).Tag.Get("ipVersion")
+				switch ipVersion {
+				case "4":
+					bufferSize = 4
+				case "6":
+					bufferSize = 16
+				default:
+					lookupField := structure.Field(i).Tag.Get("ipVersionLookUp")
+					switch lookupField {
+					default:
+						ipType := reflect.Indirect(data).FieldByName(lookupField).Uint()
+						switch ipType {
+						case 1:
+							bufferSize = 4
+						case 2:
+							bufferSize = 16
+						default:
+							return fmt.Errorf("Invalid Value found in ipVersionLookUp Type Field. Expected 1 or 2 and got: %d", ipType)
+						}
+					case "":
+						return fmt.Errorf("Unable to determine which IP Version to read for field %s\n", field.Type.Name())
+					}
+				}
+
+				if bufferSize == 4 && data.FieldByIndex(field.Index).Len() == 16 {
+					// We write only the last 4 Bytes of the buffer (net.IP uses 16 by default even for IPv4)
 					if err = binary.Write(w, binary.BigEndian, data.FieldByIndex(field.Index).Bytes()[12:]); err != nil {
 						return err
 					}
-				} else if NextHopType == 2 {
+				} else {
 					if err = binary.Write(w, binary.BigEndian, data.FieldByIndex(field.Index).Bytes()); err != nil {
 						return err
 					}
 				}
 			default:
-				//fmt.Printf("SliceType: %s\n", reflect.SliceOf(field.Type).Elem())
 				switch reflect.SliceOf(field.Type).Elem().String() {
 				case "[]uint32":
 					// Write directly to io
@@ -47,7 +71,6 @@ func Encode(w io.Writer, s interface{}) error {
 					}
 				default:
 					for x := 0; x < data.FieldByIndex(field.Index).Len(); x++ {
-						//fmt.Printf("Slice: %+#v\n", data.FieldByIndex(field.Index).Index(x))
 						Encode(w, data.FieldByIndex(field.Index).Index(x).Interface())
 					}
 				}

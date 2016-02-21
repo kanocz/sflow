@@ -7,24 +7,8 @@ import (
 	"reflect"
 )
 
-func Decode(r io.Reader, s interface{}, flag_vars ...map[string]string) error {
+func Decode(r io.Reader, s interface{}) error {
 	var err error
-	var ipVersion string = "4"
-	var ipVersionLookupField string
-
-	var flags map[string]string
-
-	if len(flag_vars) > 0 {
-		flags = flag_vars[0]
-
-		if _, found := flags["ipVersion"]; found {
-			ipVersion = flags["ipVersion"]
-		}
-
-		if _, found := flags["ipVersionLookupField"]; found {
-			ipVersionLookupField = flags["ipVersionLookupField"]
-		}
-	}
 
 	structure := reflect.TypeOf(s)
 	data := reflect.ValueOf(s)
@@ -62,21 +46,27 @@ func Decode(r io.Reader, s interface{}, flag_vars ...map[string]string) error {
 				case "IP":
 					var bufferSize uint32
 
-					if ipVersionLookupField != "" {
-						NextHopType := reflect.Indirect(data).FieldByName(ipVersionLookupField).Uint()
-						if NextHopType == 2 {
-							bufferSize = 16
-						} else {
-							bufferSize = 4
-						}
-					} else {
-						switch ipVersion {
-						case "4":
-							bufferSize = 4
-						case "6":
-							bufferSize = 16
+					ipVersion := structure.Field(i).Tag.Get("ipVersion")
+					switch ipVersion {
+					case "4":
+						bufferSize = 4
+					case "6":
+						bufferSize = 16
+					default:
+						lookupField := structure.Field(i).Tag.Get("ipVersionLookUp")
+						switch lookupField {
 						default:
-							return fmt.Errorf("Invalid IP Version given")
+							ipType := reflect.Indirect(data).FieldByName(lookupField).Uint()
+							switch ipType {
+							case 1:
+								bufferSize = 4
+							case 2:
+								bufferSize = 16
+							default:
+								return fmt.Errorf("Invalid Value found in ipVersionLookUp Type Field. Expected 1 or 2 and got: %d", ipType)
+							}
+						case "":
+							return fmt.Errorf("Unable to determine which IP Version to read for field %s\n", field.Type().Name())
 						}
 					}
 
@@ -112,7 +102,7 @@ func Decode(r io.Reader, s interface{}, flag_vars ...map[string]string) error {
 						field.Set(reflect.MakeSlice(field.Type(), int(bufferSize), int(bufferSize)))
 
 						for x := 0; x < int(bufferSize); x++ {
-							Decode(r, field.Index(x).Addr().Interface(), flags)
+							Decode(r, field.Index(x).Addr().Interface())
 						}
 					}
 				}

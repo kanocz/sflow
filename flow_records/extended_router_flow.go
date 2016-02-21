@@ -9,7 +9,7 @@ import (
 
 type ExtendedRouterFlow struct {
 	NextHopType uint32
-	NextHop     net.IP
+	NextHop     net.IP `ipVersionLookUp:"NextHopType"`
 	SrcMask     uint32
 	DstMask     uint32
 }
@@ -40,10 +40,7 @@ func DecodeExtendedRouterFlow(r io.Reader) (ExtendedRouterFlow, error) {
 
 	f := ExtendedRouterFlow{}
 
-	flags := map[string]string{
-		"ipVersionLookupField": "NextHopType",
-	}
-	err = Decode(r, &f, flags)
+	err = Decode(r, &f)
 
 	return f, err
 }

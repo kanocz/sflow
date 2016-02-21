@@ -34,8 +34,8 @@ type IPv4Header struct {
 	Ttl           uint8
 	Protocol      uint8
 	Check         uint16
-	SrcAddr       net.IP
-	DstAddr       net.IP
+	SrcAddr       net.IP `ipVersion:4`
+	DstAddr       net.IP `ipVersion:4`
 }
 
 type IPv6Header struct {
@@ -46,8 +46,8 @@ type IPv6Header struct {
 	PayloadLength      uint16
 	NextHeader         uint8
 	Ttl                uint8
-	SrcAddr            net.IP
-	DstAddr            net.IP
+	SrcAddr            net.IP `ipVersion:6`
+	DstAddr            net.IP `ipVersion:6`
 }
 
 type TcpHeader struct {
@@ -60,16 +60,6 @@ type TcpHeader struct {
 	Window   uint16
 	Checksum uint16
 	Urgent   uint16
-	//uint16_t th_sport;		/* source port */
-	//uint16_t th_dport;		/* destination port */
-	//uint32_t th_seq;		/* sequence number */
-	//uint32_t th_ack;		/* acknowledgement number */
-	//uint8_t th_off_and_unused;
-	//uint8_t th_flags;
-	//uint16_t th_win;		/* window */
-	//uint16_t th_sum;		/* checksum */
-	//uint16_t th_urp;		/* urgent pointer */
-	//};
 }
 
 type UdpHeader struct {
@@ -101,10 +91,7 @@ func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 	if ipVersion == 4 {
 		ip := IPv4Header{}
 
-		flags := map[string]string{
-			"ipVersion": "4",
-		}
-		if err = Decode(h, &ip, flags); err != nil {
+		if err = Decode(h, &ip); err != nil {
 			return err
 		}
 		f.DecodedHeader["ip"] = ip
@@ -113,19 +100,19 @@ func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 		switch ip.Protocol {
 		case IPProtocolTCP:
 			tcp := TcpHeader{}
-			if err = Decode(h, &tcp, flags); err != nil {
+			if err = Decode(h, &tcp); err != nil {
 				return err
 			}
 			f.DecodedHeader["tcp"] = tcp
 		case IPProtocolUDP:
 			udp := UdpHeader{}
-			if err = Decode(h, &udp, flags); err != nil {
+			if err = Decode(h, &udp); err != nil {
 				return err
 			}
 			f.DecodedHeader["udp"] = udp
 		case IPProtocolICMP:
 			icmp := IcmpHeader{}
-			if err = Decode(h, &icmp, flags); err != nil {
+			if err = Decode(h, &icmp); err != nil {
 				return err
 			}
 			f.DecodedHeader["icmp"] = icmp
@@ -140,10 +127,7 @@ func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 
 		IPHeader := IPv6Header{}
 
-		flags := map[string]string{
-			"ipVersion": "6",
-		}
-		if err = Decode(h, &IPHeader, flags); err != nil {
+		if err = Decode(h, &IPHeader); err != nil {
 			return err
 		}
 		f.DecodedHeader["ip"] = IPHeader
@@ -296,6 +280,8 @@ func (f RawPacketFlow) Encode(w io.Writer) error {
 	}
 
 	_, err = w.Write(append(f.Header, make([]byte, padding)...))
+
+	// We don't need to reencode the DecodedHeaders as the raw data is still in the Header Field.
 
 	return err
 }
