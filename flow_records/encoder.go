@@ -19,8 +19,16 @@ func Encode(w io.Writer, s interface{}) error {
 		field := structure.Field(i)
 
 		switch field.Type.Kind() {
+		case reflect.Uint8:
+			if err = binary.Write(w, binary.BigEndian, uint8(data.FieldByIndex(field.Index).Uint())); err != nil {
+				return err
+			}
 		case reflect.Uint32:
 			if err = binary.Write(w, binary.BigEndian, uint32(data.FieldByIndex(field.Index).Uint())); err != nil {
+				return err
+			}
+		case reflect.Uint64:
+			if err = binary.Write(w, binary.BigEndian, uint64(data.FieldByIndex(field.Index).Uint())); err != nil {
 				return err
 			}
 		case reflect.Slice:
