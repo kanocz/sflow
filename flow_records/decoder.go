@@ -91,7 +91,7 @@ func Decode(r io.Reader, s interface{}) error {
 					// Look up the slices length via the lengthLookUp Tag Field
 					lengthField := structure.Field(i).Tag.Get("lengthLookUp")
 					if lengthField == "" {
-						return fmt.Errorf("Variable length slice without a defined lengthLookUp. Please specify length lookup field via struct tag: `lengthLookUp:\"fieldname\"`")
+						return fmt.Errorf("Variable length slice (%s) without a defined lengthLookUp. Please specify length lookup field via struct tag: `lengthLookUp:\"fieldname\"`", structure.Field(i).Name)
 					}
 					bufferSize := reflect.Indirect(data).FieldByName(lengthField).Uint()
 
