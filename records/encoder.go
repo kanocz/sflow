@@ -1,4 +1,4 @@
-package flow_records
+package records
 
 import (
 	"encoding/binary"
@@ -7,6 +7,7 @@ import (
 	"reflect"
 )
 
+// Encode an sflow packet from 's' into 'w' - The structs datatypes define the binary representation
 func Encode(w io.Writer, s interface{}) error {
 	var err error
 

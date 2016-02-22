@@ -1,4 +1,4 @@
-package flow_records
+package records
 
 import (
 	"testing"

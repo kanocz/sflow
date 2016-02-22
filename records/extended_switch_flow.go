@@ -1,4 +1,4 @@
-package flow_records
+package records
 
 import (
 	"encoding/binary"
@@ -20,13 +20,13 @@ func (f ExtendedSwitchFlow) String() string {
 	return fmt.Sprintf("ExtendedSwitchFlow: %+v", x)
 }
 
-// RecordType returns the type of flow record.
+// RecordType returns the ID of the sflow flow record
 func (f ExtendedSwitchFlow) RecordType() int {
 	return TypeExtendedSwitchFlowRecord
 }
 
 func (f ExtendedSwitchFlow) calculateBinarySize() int {
-	var size int = 0
+	var size int
 
 	size += binary.Size(f)
 	/*size += binary.Size(f.NextHop)

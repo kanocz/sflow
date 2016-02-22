@@ -1,4 +1,4 @@
-package flow_records
+package records
 
 import (
 	"encoding/binary"
@@ -8,6 +8,7 @@ import (
 	"reflect"
 )
 
+// Decode an sflow packet read from 'r' into the struct given by 's' - The structs datatypes have to match the binary representation in the bytestream exactly
 func Decode(r io.Reader, s interface{}) error {
 	var err error
 

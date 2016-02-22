@@ -1,10 +1,10 @@
-package flow_records
+package records
 
 import (
 	"bytes"
 	"encoding/binary"
-	"encoding/json"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net"
@@ -20,37 +20,43 @@ type RawPacketFlow struct {
 	DecodedHeader map[string]interface{}
 }
 
+// EthernetHeader as found in RawPacketFlow.Header
 type EthernetHeader struct {
 	DstMac HardwareAddr
 	SrcMac HardwareAddr
 }
 
+// HardwareAddr alias of net.HardwareAddr to be able to add JSON Marhshalling
 type HardwareAddr net.HardwareAddr
-func (e HardwareAddr) MarshalJSON() ([]byte, error){
+
+// MarshalJSON creates a human-readable string representation of a HardwareAddr
+func (e HardwareAddr) MarshalJSON() ([]byte, error) {
 	x := net.HardwareAddr(e)
 	return json.Marshal(fmt.Sprintf("%s", x))
 }
 
+// UnmarshalJSON reads a MAC Address via net.ParseMAC into HardwareAddr
 func (e *HardwareAddr) UnmarshalJSON(value []byte) error {
 	x, err := net.ParseMAC(string(value))
 	*e = HardwareAddr(x)
 	return err
 }
 
-/* define my own IP header struct - to ease portability */
+// IPv4Header as found in RawPacketFlow.Header
 type IPv4Header struct {
 	VersionAndLen uint8
 	Tos           uint8
 	TotLen        uint16
-	Id            uint16
+	ID            uint16
 	FragOff       uint16
-	Ttl           uint8
+	TTL           uint8
 	Protocol      uint8
 	Check         uint16
 	SrcAddr       net.IP `ipVersion:"4"`
 	DstAddr       net.IP `ipVersion:"4"`
 }
 
+// IPv6Header as found in RawPacketFlow.Header
 type IPv6Header struct {
 	VersionAndPriority uint8
 	Label1             uint8
@@ -58,12 +64,13 @@ type IPv6Header struct {
 	Label3             uint8
 	PayloadLength      uint16
 	NextHeader         uint8
-	Ttl                uint8
+	TTL                uint8
 	SrcAddr            net.IP `ipVersion:"6"`
 	DstAddr            net.IP `ipVersion:"6"`
 }
 
-type TcpHeader struct {
+// TCPHeader as found in RawPacketFlow.Header
+type TCPHeader struct {
 	SrcPort  uint16
 	DstPort  uint16
 	Seq      uint32
@@ -75,14 +82,16 @@ type TcpHeader struct {
 	Urgent   uint16
 }
 
-type UdpHeader struct {
+// UDPHeader as found in RawPacketFlow.Header
+type UDPHeader struct {
 	SrcPort  uint16
 	DstPort  uint16
 	Length   uint16
 	Checksum uint16
 }
 
-type IcmpHeader struct {
+// ICMPHeader as found in RawPacketFlow.Header
+type ICMPHeader struct {
 	Type uint8
 	Code uint8
 }
@@ -113,19 +122,19 @@ func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 		//Can we decode a following Layer4 Protocol Header?
 		switch ip.Protocol {
 		case IPProtocolTCP:
-			tcp := TcpHeader{}
+			tcp := TCPHeader{}
 			if err = Decode(h, &tcp); err != nil {
 				return err
 			}
 			f.DecodedHeader["tcp"] = tcp
 		case IPProtocolUDP:
-			udp := UdpHeader{}
+			udp := UDPHeader{}
 			if err = Decode(h, &udp); err != nil {
 				return err
 			}
 			f.DecodedHeader["udp"] = udp
 		case IPProtocolICMP:
-			icmp := IcmpHeader{}
+			icmp := ICMPHeader{}
 			if err = Decode(h, &icmp); err != nil {
 				return err
 			}
@@ -139,19 +148,19 @@ func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 		//FIXME: IMPLEMENT ME
 		return fmt.Errorf("IPv6 is not implemented yet")
 
-		IPHeader := IPv6Header{}
+		/*IPHeader := IPv6Header{}
 
 		if err = Decode(h, &IPHeader); err != nil {
 			return err
 		}
-		f.DecodedHeader["ip"] = IPHeader
+		f.DecodedHeader["ip"] = IPHeader*/
 	}
 
 	return nil
 }
 
 func (f *RawPacketFlow) decodeHeader(headerType uint32) error {
-	var err error = nil
+	var err error
 
 	f.DecodedHeader = make(map[string]interface{})
 
@@ -204,6 +213,7 @@ func (f *RawPacketFlow) decodeHeader(headerType uint32) error {
 	return err
 }
 
+// DecodeRawPacketFlow decodes an TypeRawPacketFlowRecord
 func DecodeRawPacketFlow(r io.Reader) (RawPacketFlow, error) {
 	f := RawPacketFlow{}
 
@@ -257,6 +267,7 @@ func DecodeRawPacketFlow(r io.Reader) (RawPacketFlow, error) {
 	return f, err
 }
 
+// Encode create the binary sflow representation of f
 func (f RawPacketFlow) Encode(w io.Writer) error {
 	var err error
 

@@ -1,7 +1,7 @@
 package sflow
 
 import (
-	"github.com/fstelzer/sflow/flow_records"
+	"github.com/fstelzer/sflow/records"
 	"os"
 	"testing"
 )
@@ -153,7 +153,7 @@ func TestDecodeFlow1(t *testing.T) {
 		t.Fatalf("expected 2 records, got %d", len(sample.Records))
 	}
 
-	rec, ok := sample.Records[0].(flow_records.RawPacketFlow)
+	rec, ok := sample.Records[0].(records.RawPacketFlow)
 	if !ok {
 		t.Fatalf("expected a RawPacketFlowRecords, got %T", sample.Records[0])
 	}

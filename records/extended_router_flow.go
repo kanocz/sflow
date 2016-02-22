@@ -1,4 +1,4 @@
-package flow_records
+package records
 
 import (
 	"encoding/binary"
@@ -20,12 +20,13 @@ func (f ExtendedRouterFlow) String() string {
 	return fmt.Sprintf("ExtendedRouterFlow: %+v", x)
 }
 
+// RecordType returns the ID of the sflow flow record
 func (f ExtendedRouterFlow) RecordType() int {
 	return TypeExtendedRouterFlowRecord
 }
 
 func (f ExtendedRouterFlow) calculateBinarySize() int {
-	var size int = 0
+	var size int
 
 	size += binary.Size(f.NextHopType)
 	size += binary.Size(f.NextHop)

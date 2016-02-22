@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/fstelzer/sflow/flow_records"
+	"github.com/fstelzer/sflow/records"
 	"io"
 )
 
@@ -112,23 +112,23 @@ func decodeFlowSample(r io.ReadSeeker) (Sample, error) {
 		var rec Record
 
 		switch format {
-		case flow_records.TypeRawPacketFlowRecord:
-			rec, err = flow_records.DecodeRawPacketFlow(r)
+		case records.TypeRawPacketFlowRecord:
+			rec, err = records.DecodeRawPacketFlow(r)
 			if err != nil {
 				return nil, err
 			}
-		case flow_records.TypeExtendedSwitchFlowRecord:
-			rec, err = flow_records.DecodedExtendedSwitchFlow(r)
+		case records.TypeExtendedSwitchFlowRecord:
+			rec, err = records.DecodedExtendedSwitchFlow(r)
 			if err != nil {
 				return nil, err
 			}
-		case flow_records.TypeExtendedRouterFlowRecord:
-			rec, err = flow_records.DecodeExtendedRouterFlow(r)
+		case records.TypeExtendedRouterFlowRecord:
+			rec, err = records.DecodeExtendedRouterFlow(r)
 			if err != nil {
 				return nil, err
 			}
-		case flow_records.TypeExtendedGatewayFlowRecord:
-			rec, err = flow_records.DecodeExtendedGatewayFlow(r)
+		case records.TypeExtendedGatewayFlowRecord:
+			rec, err = records.DecodeExtendedGatewayFlow(r)
 			if err != nil {
 				return nil, err
 			}

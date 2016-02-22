@@ -1,5 +1,6 @@
-package flow_records
+package records
 
+// sflow flow sample types
 const (
 	TypeRawPacketFlowRecord     = 1
 	TypeEthernetFrameFlowRecord = 2
@@ -10,7 +11,7 @@ const (
 	TypeExtendedRouterFlowRecord     = 1002
 	TypeExtendedGatewayFlowRecord    = 1003
 	TypeExtendedUserFlowRecord       = 1004
-	TypeExtendedUrlFlowRecord        = 1005
+	TypeExtendedURLFlowRecord        = 1005
 	TypeExtendedMlpsFlowRecord       = 1006
 	TypeExtendedNatFlowRecord        = 1007
 	TypeExtendedMlpsTunnelFlowRecord = 1008
@@ -33,6 +34,7 @@ const (
 	// may not exceed the MTU.
 	MaximumHeaderLength = 1500
 
+	// MinimumEthernetHeaderSize defines the minimum header size to be parsed
 	MinimumEthernetHeaderSize = 14
 	//#define NFT_8022_SIZ 3
 	//#define NFT_MAX_8023_LEN 1500
@@ -55,6 +57,7 @@ const (
 	HeaderProtocolIPv6              = 12
 )
 
+// IP Header Protocol Types (see: https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers)
 const (
 	IPProtocolICMP = 1
 	IPProtocolTCP  = 6

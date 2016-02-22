@@ -2,13 +2,13 @@ package sflow
 
 import (
 	"bytes"
-	"github.com/fstelzer/sflow/flow_records"
+	"github.com/fstelzer/sflow/records"
 	"reflect"
 	"testing"
 )
 
 func TestEncodeDecodeRawPacketFlowRecord(t *testing.T) {
-	rec := flow_records.RawPacketFlow{
+	rec := records.RawPacketFlow{
 		Protocol:    1,
 		FrameLength: 318,
 		Stripped:    4,
@@ -50,7 +50,7 @@ func TestEncodeDecodeRawPacketFlowRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	decoded, err := flow_records.DecodeRawPacketFlow(b)
+	decoded, err := records.DecodeRawPacketFlow(b)
 	decoded.DecodedHeader = nil // We don't care if we decoded the header here
 	if err != nil {
 		t.Fatal(err)
