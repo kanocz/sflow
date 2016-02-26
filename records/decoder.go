@@ -28,6 +28,11 @@ func Decode(r io.Reader, s interface{}) error {
 	for i := 0; i < structure.NumField(); i++ {
 		field := data.Field(i)
 
+		// Do not decode fields marked with "ignoreOnMarshal" Tags
+		if ignoreField := structure.Field(i).Tag.Get("ignoreOnMarshal"); ignoreField == "true" {
+			continue
+		}
+
 		//fmt.Printf("Kind: %s\n", field.Kind())
 
 		if field.CanSet() {

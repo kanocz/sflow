@@ -13,12 +13,20 @@ type ExtendedGatewayFlow struct {
 	As                   uint32
 	SrcAs                uint32
 	SrcPeerAs            uint32
+	DstAs                uint32 `ignoreOnMarshal:"true"`
+	DstPeerAs            uint32 `ignoreOnMarshal:"true"`
 	DstAsPathSegmentsLen uint32
 	DstAsPathSegments    []ExtendedGatewayFlowASPathSegment `lengthLookUp:"DstAsPathSegmentsLen"`
 	CommunitiesLen       uint32
 	Communities          []uint32 `lengthLookUp:"CommunitiesLen"`
 	LocalPref            uint32
 }
+
+// As Path Segment ordering Types
+const (
+	AsPathSegmentTypeUnOrdered = 1
+	AsPathSegmentTypeOrdered   = 2
+)
 
 type ExtendedGatewayFlowASPathSegment struct {
 	SegType uint32 // 1: Unordered Set || 2: Ordered Set
@@ -64,6 +72,17 @@ func DecodeExtendedGatewayFlow(r io.Reader) (ExtendedGatewayFlow, error) {
 	f := ExtendedGatewayFlow{}
 
 	err = Decode(r, &f)
+
+	if err == nil {
+		// Fill extra fields from decoded data
+		for _, asSegment := range f.DstAsPathSegments {
+			if asSegment.SegType == AsPathSegmentTypeOrdered {
+				// If the AS Segment is ordered then the last Element is the DstAs and the first the DstPeerAs
+				f.DstAs = asSegment.Seg[len(asSegment.Seg)-1:][0]
+				f.DstPeerAs = asSegment.Seg[0:1][0]
+			}
+		}
+	}
 
 	return f, err
 }

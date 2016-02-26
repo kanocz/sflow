@@ -19,6 +19,11 @@ func Encode(w io.Writer, s interface{}) error {
 	for i := 0; i < structure.NumField(); i++ {
 		field := structure.Field(i)
 
+		// Do not encode fields marked with "ignoreOnMarshal" Tags
+		if ignoreField := field.Tag.Get("ignoreOnMarshal"); ignoreField == "true" {
+			continue
+		}
+
 		switch field.Type.Kind() {
 		case reflect.Uint8:
 			if err = binary.Write(w, binary.BigEndian, uint8(data.FieldByIndex(field.Index).Uint())); err != nil {

@@ -37,10 +37,12 @@ func TestEncodeDecodeExtendedGatewayFlowRecord(t *testing.T) {
 		NextHop:              net.ParseIP("2001:0db8:ac10:fe01::"), //IPv4 fails with the DeepEqual
 		As:                   1234,
 		SrcAs:                4321,
+		DstAs:                65535,
+		DstPeerAs:            1234,
 		SrcPeerAs:            5678,
 		DstAsPathSegmentsLen: 1,
 		DstAsPathSegments: []ExtendedGatewayFlowASPathSegment{{
-			SegType: 1,
+			SegType: 2,
 			SegLen:  3,
 			Seg:     []uint32{1234, 4321, 65535},
 		}},
