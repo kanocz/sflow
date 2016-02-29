@@ -20,6 +20,11 @@ func (f ExtendedRouterFlow) String() string {
 	return fmt.Sprintf("ExtendedRouterFlow: %+v", x)
 }
 
+// RecordName returns the Name of this flow record
+func (f ExtendedRouterFlow) RecordName() string {
+	return "ExtendedRouterFlow"
+}
+
 // RecordType returns the ID of the sflow flow record
 func (f ExtendedRouterFlow) RecordType() int {
 	return TypeExtendedRouterFlowRecord

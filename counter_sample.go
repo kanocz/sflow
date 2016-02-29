@@ -30,7 +30,7 @@ type CounterSample struct {
 	SourceIdType     byte
 	SourceIdIndexVal uint32 // NOTE: this is 3 bytes in the datagram
 	numRecords       uint32
-	Records          []Record
+	Records          map[string]Record
 }
 
 func (s CounterSample) String() string {
@@ -44,7 +44,7 @@ func (s *CounterSample) SampleType() int {
 	return TypeCounterSample
 }
 
-func (s *CounterSample) GetRecords() []Record {
+func (s *CounterSample) GetRecords() map[string]Record {
 	return s.Records
 }
 
@@ -82,6 +82,7 @@ func decodeCounterSample(r io.ReadSeeker) (Sample, error) {
 		return nil, err
 	}
 
+	s.Records = make(map[string]Record, s.numRecords)
 	for i := uint32(0); i < s.numRecords; i++ {
 		format, length := uint32(0), uint32(0)
 
@@ -159,7 +160,9 @@ func decodeCounterSample(r io.ReadSeeker) (Sample, error) {
 			}
 			continue
 		}
-		s.Records = append(s.Records, rec)
+
+		s.Records[rec.RecordName()] = rec
+		//s.Records = append(s.Records, rec)
 	}
 	return s, nil
 }

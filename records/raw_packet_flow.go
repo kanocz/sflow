@@ -107,6 +107,11 @@ func (f RawPacketFlow) RecordType() int {
 	return TypeRawPacketFlowRecord
 }
 
+// RecordName returns the Name of this flow record
+func (f RawPacketFlow) RecordName() string {
+	return "RawPacketFlow"
+}
+
 func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 	var err error
 

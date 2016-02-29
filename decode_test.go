@@ -40,7 +40,7 @@ func TestDecodeGenericEthernetCounterSample(t *testing.T) {
 		t.Fatalf("expected 2 records, got %d", len(sample.Records))
 	}
 
-	ethCounters, ok := sample.Records[0].(EthernetCounters)
+	ethCounters, ok := sample.Records[TypeEthernetCountersRecord].(EthernetCounters)
 	if !ok {
 		t.Fatalf("expected a EthernetCounters record, got %T", sample.Records[0])
 	}
@@ -50,7 +50,7 @@ func TestDecodeGenericEthernetCounterSample(t *testing.T) {
 		t.Errorf("expected\n%#v, got\n%#v", expectedEthCountersRec, ethCounters)
 	}
 
-	genericInterfaceCounters, ok := sample.Records[1].(GenericInterfaceCounters)
+	genericInterfaceCounters, ok := sample.Records[TypeGenericInterfaceCountersRecord].(GenericInterfaceCounters)
 	if !ok {
 		t.Fatalf("expected a GenericInterfaceCounters record, got %T", sample.Records[1])
 	}
@@ -153,9 +153,9 @@ func TestDecodeFlow1(t *testing.T) {
 		t.Fatalf("expected 2 records, got %d", len(sample.Records))
 	}
 
-	rec, ok := sample.Records[0].(records.RawPacketFlow)
+	rec, ok := sample.Records[records.TypeRawPacketFlowRecord].(records.RawPacketFlow)
 	if !ok {
-		t.Fatalf("expected a RawPacketFlowRecords, got %T", sample.Records[0])
+		t.Fatalf("expected a RawPacketFlowRecord, got %T", sample.Records[records.TypeRawPacketFlowRecord])
 	}
 
 	if rec.Protocol != 1 {

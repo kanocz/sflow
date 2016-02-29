@@ -19,7 +19,7 @@ var (
 
 type Sample interface {
 	SampleType() int
-	GetRecords() []Record
+	GetRecords() map[string]Record
 	encode(w io.Writer) error
 }
 

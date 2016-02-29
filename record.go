@@ -12,5 +12,6 @@ var (
 
 type Record interface {
 	RecordType() int
+	RecordName() string
 	Encode(w io.Writer) error
 }

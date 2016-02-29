@@ -40,6 +40,11 @@ func (f ExtendedGatewayFlow) String() string {
 	return fmt.Sprintf("ExtendedGatewayFlow: %+v", x)
 }
 
+// RecordName returns the Name of this flow record
+func (f ExtendedGatewayFlow) RecordName() string {
+	return "ExtendedGatewayFlow"
+}
+
 // RecordType returns the ID of the sflow flow record
 func (f ExtendedGatewayFlow) RecordType() int {
 	return TypeExtendedGatewayFlowRecord

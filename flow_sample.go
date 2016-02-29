@@ -19,7 +19,7 @@ type FlowSample struct {
 	Input            uint32
 	Output           uint32
 	numRecords       uint32
-	Records          []Record
+	Records          map[string]Record
 }
 
 func (s FlowSample) String() string {
@@ -33,7 +33,7 @@ func (s *FlowSample) SampleType() int {
 	return TypeFlowSample
 }
 
-func (s *FlowSample) GetRecords() []Record {
+func (s *FlowSample) GetRecords() map[string]Record {
 	return s.Records
 }
 
@@ -96,6 +96,7 @@ func decodeFlowSample(r io.ReadSeeker) (Sample, error) {
 		return nil, err
 	}
 
+	s.Records = make(map[string]Record, s.numRecords)
 	for i := uint32(0); i < s.numRecords; i++ {
 		format, length := uint32(0), uint32(0)
 
@@ -142,7 +143,7 @@ func decodeFlowSample(r io.ReadSeeker) (Sample, error) {
 			continue
 		}
 
-		s.Records = append(s.Records, rec)
+		s.Records[rec.RecordName()] = rec
 	}
 
 	return s, nil

@@ -36,6 +36,11 @@ func (c GenericInterfaceCounters) String() string {
 	return fmt.Sprintf("GenericInterfaceCounters: %+v", x)
 }
 
+// RecordName returns the Name of this counter record
+func (c GenericInterfaceCounters) RecordName() string {
+	return "GenericInterfaceCounters"
+}
+
 // EthernetCounters is an Ethernet interface counters record.
 type EthernetCounters struct {
 	AlignmentErrors           uint32
@@ -57,6 +62,11 @@ func (c EthernetCounters) String() string {
 	type X EthernetCounters
 	x := X(c)
 	return fmt.Sprintf("EthernetCounters: %+v", x)
+}
+
+// RecordName returns the Name of this counter record
+func (c EthernetCounters) RecordName() string {
+	return "EthernetCounters"
 }
 
 // TokenRingCounters is a token ring interface counters record.
@@ -87,6 +97,11 @@ func (c TokenRingCounters) String() string {
 	return fmt.Sprintf("TokenRingCounters: %+v", x)
 }
 
+// RecordName returns the Name of this counter record
+func (c TokenRingCounters) RecordName() string {
+	return "TokenRingCounters"
+}
+
 // VgCounters is a BaseVG interface counters record.
 type VgCounters struct {
 	InHighPriorityFrames    uint32
@@ -111,6 +126,11 @@ func (c VgCounters) String() string {
 	return fmt.Sprintf("VgCounters: %+v", x)
 }
 
+// RecordName returns the Name of this counter record
+func (c VgCounters) RecordName() string {
+	return "VgCounters"
+}
+
 // VlanCounters is a VLAN counters record.
 type VlanCounters struct {
 	ID               uint32
@@ -127,6 +147,11 @@ func (c VlanCounters) String() string {
 	return fmt.Sprintf("VlanCounters: %+v", x)
 }
 
+// RecordName returns the Name of this counter record
+func (c VlanCounters) RecordName() string {
+	return "VlanCounters"
+}
+
 // ProcessorCounters is a switch processor counters record.
 type ProcessorCounters struct {
 	CPU5s       uint32
@@ -140,6 +165,11 @@ func (c ProcessorCounters) String() string {
 	type X ProcessorCounters
 	x := X(c)
 	return fmt.Sprintf("ProcessorCounters: %+v", x)
+}
+
+// RecordName returns the Name of this counter record
+func (c ProcessorCounters) RecordName() string {
+	return "ProcessorCounters"
 }
 
 // HostCPUCounters is a host CPU counters record.
@@ -174,6 +204,11 @@ func (c HostCPUCounters) String() string {
 	return fmt.Sprintf("HostCPUCounters: %+v", x)
 }
 
+// RecordName returns the Name of this counter record
+func (c HostCPUCounters) RecordName() string {
+	return "HostCPUCounters"
+}
+
 // HostMemoryCounters is a host memory counters record.
 type HostMemoryCounters struct {
 	Total     uint64
@@ -196,6 +231,11 @@ func (c HostMemoryCounters) String() string {
 	return fmt.Sprintf("HostMemoryCounters: %+v", x)
 }
 
+// RecordName returns the Name of this counter record
+func (c HostMemoryCounters) RecordName() string {
+	return "HostMemoryCounters"
+}
+
 // HostDiskCounters is a host disk counters record.
 type HostDiskCounters struct {
 	Total          uint64
@@ -215,6 +255,11 @@ func (c HostDiskCounters) String() string {
 	return fmt.Sprintf("HostDiskCounters: %+v", x)
 }
 
+// RecordName returns the Name of this counter record
+func (c HostDiskCounters) RecordName() string {
+	return "HostDiskCounters"
+}
+
 // HostNetCounters is a host network counters record.
 type HostNetCounters struct {
 	BytesIn   uint64
@@ -232,6 +277,11 @@ func (c HostNetCounters) String() string {
 	type X HostNetCounters
 	x := X(c)
 	return fmt.Sprintf("HostNetCounters: %+v", x)
+}
+
+// RecordName returns the Name of this counter record
+func (c HostNetCounters) RecordName() string {
+	return "HostNetCounters"
 }
 
 var (

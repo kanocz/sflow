@@ -20,6 +20,11 @@ func (f ExtendedSwitchFlow) String() string {
 	return fmt.Sprintf("ExtendedSwitchFlow: %+v", x)
 }
 
+// RecordName returns the Name of this flow record
+func (f ExtendedSwitchFlow) RecordName() string {
+	return "ExtendedSwitchFlow"
+}
+
 // RecordType returns the ID of the sflow flow record
 func (f ExtendedSwitchFlow) RecordType() int {
 	return TypeExtendedSwitchFlowRecord
