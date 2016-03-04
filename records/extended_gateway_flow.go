@@ -76,7 +76,7 @@ func DecodeExtendedGatewayFlow(r io.Reader) (ExtendedGatewayFlow, error) {
 
 	f := ExtendedGatewayFlow{}
 
-	err = Decode(r, &f)
+	_, err = Decode(r, &f)
 
 	if err == nil {
 		// Fill extra fields from decoded data

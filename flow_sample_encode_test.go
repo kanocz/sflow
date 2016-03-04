@@ -63,7 +63,7 @@ func TestDecodeEncodeAndDecodeFlowSample(t *testing.T) {
 		t.Fatalf("expected 2 records, got %d", len(sample.Records))
 	}
 
-	rec, ok := sample.Records[records.TypeRawPacketFlowRecord].(records.RawPacketFlow)
+	rec, ok := sample.Records[0].(records.RawPacketFlow)
 	if !ok {
 		t.Fatalf("expected a RawPacketFlowRecords, got %T", sample.Records[0])
 	}

@@ -51,7 +51,7 @@ func TestDecodeAndEncodeGenericEthernetCounterDatagram(t *testing.T) {
 		t.Fatalf("expected 2 records, got %d", len(sample.Records))
 	}
 
-	ethCounters, ok := sample.Records[TypeEthernetCountersRecord].(EthernetCounters)
+	ethCounters, ok := sample.Records[0].(EthernetCounters)
 	if !ok {
 		t.Fatalf("expected a EthernetCounters record, got %T", sample.Records[0])
 	}
@@ -61,7 +61,7 @@ func TestDecodeAndEncodeGenericEthernetCounterDatagram(t *testing.T) {
 		t.Errorf("expected\n%#v, got\n%#v", expectedEthCountersRec, ethCounters)
 	}
 
-	genericInterfaceCounters, ok := sample.Records[TypeGenericInterfaceCountersRecord].(GenericInterfaceCounters)
+	genericInterfaceCounters, ok := sample.Records[1].(GenericInterfaceCounters)
 	if !ok {
 		t.Fatalf("expected a GenericInterfaceCounters record, got %T", sample.Records[1])
 	}

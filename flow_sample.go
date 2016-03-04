@@ -19,7 +19,7 @@ type FlowSample struct {
 	Input            uint32
 	Output           uint32
 	numRecords       uint32
-	Records          map[string]Record
+	Records          []Record
 }
 
 func (s FlowSample) String() string {
@@ -33,7 +33,7 @@ func (s *FlowSample) SampleType() int {
 	return TypeFlowSample
 }
 
-func (s *FlowSample) GetRecords() map[string]Record {
+func (s *FlowSample) GetRecords() []Record {
 	return s.Records
 }
 
@@ -96,7 +96,6 @@ func decodeFlowSample(r io.ReadSeeker) (Sample, error) {
 		return nil, err
 	}
 
-	s.Records = make(map[string]Record, s.numRecords)
 	for i := uint32(0); i < s.numRecords; i++ {
 		format, length := uint32(0), uint32(0)
 
@@ -118,6 +117,11 @@ func decodeFlowSample(r io.ReadSeeker) (Sample, error) {
 			if err != nil {
 				return nil, err
 			}
+		case records.TypeEthernetFrameFlowRecord:
+			rec, err = records.DecodeEthernetFrameFlow(r)
+			if err != nil {
+				return nil, err
+			}
 		case records.TypeExtendedSwitchFlowRecord:
 			rec, err = records.DecodedExtendedSwitchFlow(r)
 			if err != nil {
@@ -134,7 +138,7 @@ func decodeFlowSample(r io.ReadSeeker) (Sample, error) {
 				return nil, err
 			}
 		default:
-			fmt.Printf("Unhandled Record Type: %d\n", format)
+			fmt.Printf("Unhandled Flow Record Type: %b - %d\n", format, format)
 			_, err := r.Seek(int64(length), 1)
 			if err != nil {
 				return nil, err
@@ -143,7 +147,7 @@ func decodeFlowSample(r io.ReadSeeker) (Sample, error) {
 			continue
 		}
 
-		s.Records[rec.RecordName()] = rec
+		s.Records = append(s.Records, rec)
 	}
 
 	return s, nil

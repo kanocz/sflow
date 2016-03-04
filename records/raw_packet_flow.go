@@ -118,34 +118,39 @@ func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 	if ipVersion == 4 {
 		ip := IPv4Header{}
 
-		if err = Decode(h, &ip); err != nil {
-			fmt.Printf("Err: %s\n", err)
+		_, err = Decode(h, &ip)
+		f.DecodedHeader["ip"] = ip
+
+		if err != nil {
 			return err
 		}
-		f.DecodedHeader["ip"] = ip
 
 		//Can we decode a following Layer4 Protocol Header?
 		switch ip.Protocol {
 		case IPProtocolTCP:
 			tcp := TCPHeader{}
-			if err = Decode(h, &tcp); err != nil {
+			_, err = Decode(h, &tcp)
+			f.DecodedHeader["tcp"] = tcp
+
+			if err != nil {
 				return err
 			}
-			f.DecodedHeader["tcp"] = tcp
 		case IPProtocolUDP:
 			udp := UDPHeader{}
-			if err = Decode(h, &udp); err != nil {
+			_, err = Decode(h, &udp)
+			f.DecodedHeader["udp"] = udp
+			if err != nil {
 				return err
 			}
-			f.DecodedHeader["udp"] = udp
 		case IPProtocolICMP:
 			icmp := ICMPHeader{}
-			if err = Decode(h, &icmp); err != nil {
+			_, err = Decode(h, &icmp)
+			f.DecodedHeader["icmp"] = icmp
+			if err != nil {
 				return err
 			}
-			f.DecodedHeader["icmp"] = icmp
 		default:
-			//fmt.Printf("Unknown Protocol: %d\n", ip.Protocol)
+			fmt.Printf("Unknown Protocol: %d\n", ip.Protocol)
 		}
 
 	} else if ipVersion == 6 {
@@ -178,15 +183,15 @@ func (f *RawPacketFlow) decodeHeader(headerType uint32) error {
 	switch headerType {
 	case HeaderProtocolEthernetISO8023:
 		ethernet := EthernetHeader{}
-		if err = Decode(h, &ethernet); err != nil {
+		_, err = Decode(h, &ethernet)
+		f.DecodedHeader["ethernet"] = ethernet
+		if err != nil {
 			return err
 		}
-		f.DecodedHeader["ethernet"] = ethernet
 
 		// Determine the Type of the next Header
 		buffer := make([]byte, 2)
 		if err = binary.Read(h, binary.BigEndian, &buffer); err != nil {
-			fmt.Printf("Error: %s\n", err)
 			return err
 		}
 
@@ -266,7 +271,10 @@ func DecodeRawPacketFlow(r io.Reader) (RawPacketFlow, error) {
 
 	// Try to decode the retrieved headers
 	if err = f.decodeHeader(f.Protocol); err != nil {
-		return f, err
+		/*if err = io.ErrUnexpectedEOF {
+		}*/
+		// we don't care so much if it succeeds
+		return f, nil
 	}
 
 	return f, err

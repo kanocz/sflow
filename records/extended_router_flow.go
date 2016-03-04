@@ -46,7 +46,7 @@ func DecodeExtendedRouterFlow(r io.Reader) (ExtendedRouterFlow, error) {
 
 	f := ExtendedRouterFlow{}
 
-	err = Decode(r, &f)
+	_, err = Decode(r, &f)
 
 	return f, err
 }

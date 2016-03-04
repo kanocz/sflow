@@ -30,7 +30,7 @@ type CounterSample struct {
 	SourceIdType     byte
 	SourceIdIndexVal uint32 // NOTE: this is 3 bytes in the datagram
 	numRecords       uint32
-	Records          map[string]Record
+	Records          []Record
 }
 
 func (s CounterSample) String() string {
@@ -44,7 +44,7 @@ func (s *CounterSample) SampleType() int {
 	return TypeCounterSample
 }
 
-func (s *CounterSample) GetRecords() map[string]Record {
+func (s *CounterSample) GetRecords() []Record {
 	return s.Records
 }
 
@@ -82,7 +82,6 @@ func decodeCounterSample(r io.ReadSeeker) (Sample, error) {
 		return nil, err
 	}
 
-	s.Records = make(map[string]Record, s.numRecords)
 	for i := uint32(0); i < s.numRecords; i++ {
 		format, length := uint32(0), uint32(0)
 
@@ -154,6 +153,7 @@ func decodeCounterSample(r io.ReadSeeker) (Sample, error) {
 				return nil, err
 			}
 		default:
+			fmt.Printf("Unhandled Counter Record Type: %b - %d\n", format, format)
 			_, err := r.Seek(int64(length), 1)
 			if err != nil {
 				return nil, err
@@ -161,8 +161,7 @@ func decodeCounterSample(r io.ReadSeeker) (Sample, error) {
 			continue
 		}
 
-		s.Records[rec.RecordName()] = rec
-		//s.Records = append(s.Records, rec)
+		s.Records = append(s.Records, rec)
 	}
 	return s, nil
 }

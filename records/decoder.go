@@ -9,8 +9,9 @@ import (
 )
 
 // Decode an sflow packet read from 'r' into the struct given by 's' - The structs datatypes have to match the binary representation in the bytestream exactly
-func Decode(r io.Reader, s interface{}) error {
+func Decode(r io.Reader, s interface{}) (int, error) {
 	var err error
+	var bytesRead int
 
 	structure := reflect.TypeOf(s)
 	data := reflect.ValueOf(s)
@@ -42,15 +43,17 @@ func Decode(r io.Reader, s interface{}) error {
 				// We can decode these kinds directly
 				field.Set(reflect.New(field.Type()).Elem())
 				if err = binary.Read(r, binary.BigEndian, field.Addr().Interface()); err != nil {
-					return err
+					return bytesRead, err
 				}
+				bytesRead += binary.Size(field.Addr().Interface())
 			case reflect.Array:
 				// For Arrays we have to create the correct structure first but can then decode directly into them
 				buf := reflect.ArrayOf(field.Len(), field.Type().Elem())
 				field.Set(reflect.New(buf).Elem())
 				if err = binary.Read(r, binary.BigEndian, field.Addr().Interface()); err != nil {
-					return err
+					return bytesRead, err
 				}
+				bytesRead += binary.Size(field.Addr().Interface())
 			case reflect.Slice:
 				// For slices we need to determine the length somehow
 				switch field.Type() { // Some types (IP/HardwareAddr) are handled specifically
@@ -74,30 +77,32 @@ func Decode(r io.Reader, s interface{}) error {
 							case 2:
 								bufferSize = 16
 							default:
-								return fmt.Errorf("Invalid Value found in ipVersionLookUp Type Field. Expected 1 or 2 and got: %d", ipType)
+								return bytesRead, fmt.Errorf("Invalid Value found in ipVersionLookUp Type Field. Expected 1 or 2 and got: %d", ipType)
 							}
 						case "":
-							return fmt.Errorf("Unable to determine which IP Version to read for field %s\n", structure.Field(i).Name)
+							return bytesRead, fmt.Errorf("Unable to determine which IP Version to read for field %s\n", structure.Field(i).Name)
 						}
 					}
 
 					buffer := make([]byte, bufferSize)
 					if err = binary.Read(r, binary.BigEndian, &buffer); err != nil {
-						return err
+						return bytesRead, err
 					}
+					bytesRead += binary.Size(&buffer)
 
 					field.SetBytes(buffer)
 				case reflect.TypeOf(HardwareAddr{}):
 					buffer := make([]byte, 6)
 					if err = binary.Read(r, binary.BigEndian, &buffer); err != nil {
-						return err
+						return bytesRead, err
 					}
+					bytesRead += binary.Size(&buffer)
 					field.SetBytes(buffer)
 				default:
 					// Look up the slices length via the lengthLookUp Tag Field
 					lengthField := structure.Field(i).Tag.Get("lengthLookUp")
 					if lengthField == "" {
-						return fmt.Errorf("Variable length slice (%s) without a defined lengthLookUp. Please specify length lookup field via struct tag: `lengthLookUp:\"fieldname\"`", structure.Field(i).Name)
+						return bytesRead, fmt.Errorf("Variable length slice (%s) without a defined lengthLookUp. Please specify length lookup field via struct tag: `lengthLookUp:\"fieldname\"`", structure.Field(i).Name)
 					}
 					bufferSize := reflect.Indirect(data).FieldByName(lengthField).Uint()
 
@@ -115,16 +120,17 @@ func Decode(r io.Reader, s interface{}) error {
 
 						// Read directly from io
 						if err = binary.Read(r, binary.BigEndian, field.Addr().Interface()); err != nil {
-							return err
+							return bytesRead, err
 						}
+						bytesRead += binary.Size(field.Addr().Interface())
 					}
 				}
 
 			default:
-				return fmt.Errorf("Unhandled Field Kind: %s", field.Kind())
+				return bytesRead, fmt.Errorf("Unhandled Field Kind: %s", field.Kind())
 			}
 		}
 	}
 
-	return nil
+	return bytesRead, nil
 }
