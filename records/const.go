@@ -39,8 +39,16 @@ var flowRecordTypes = map[uint32]interface{}{
 
 // sflow counter record types
 const (
-	TypeHTTPCounterRecord = 2201
+	TypeHostDescriptionCounterRecord = 2000
+	TypeHTTPCounterRecord            = 2201
 )
+
+// counter sample record data structure mapping
+var counterRecordTypes = map[uint32]interface{}{
+	TypeHTTPCounterRecord: HTTPCounter{},
+	//TypeHostDescriptionCounterRecord: HostDescriptionCounter{},
+
+}
 
 // IP Header Protocol Types (see: https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers)
 const (

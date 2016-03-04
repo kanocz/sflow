@@ -12,7 +12,7 @@ type PostDecoder interface {
 	PostDecode() error
 }
 
-func Decode(r io.Reader, recordType uint32) (Record, error) {
+func DecodeFlow(r io.Reader, recordType uint32) (Record, error) {
 	var err error
 
 	switch recordType {
@@ -33,7 +33,29 @@ func Decode(r io.Reader, recordType uint32) (Record, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("Record type %d is not implemented yet\n", recordType)
+	return nil, fmt.Errorf("Flow record type %d is not implemented yet\n", recordType)
+}
+
+func DecodeCounter(r io.Reader, recordType uint32) (Record, error) {
+	var err error
+
+	switch recordType {
+	default:
+		if recordStruct, found := counterRecordTypes[recordType]; found {
+			data := reflect.New(reflect.TypeOf(recordStruct)).Elem()
+
+			_, err = decodeInto(r, data.Addr().Interface())
+
+			// Some records calculate extra data from the decoded values
+			if data, ok := data.Addr().Interface().(PostDecoder); ok {
+				data.PostDecode()
+			}
+
+			return data.Interface().(Record), err
+		}
+	}
+
+	return nil, fmt.Errorf("Counter record type %d is not implemented yet\n", recordType)
 }
 
 // Decode an sflow packet read from 'r' into the struct given by 's' - The structs datatypes have to match the binary representation in the bytestream exactly

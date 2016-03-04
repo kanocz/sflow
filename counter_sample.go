@@ -154,12 +154,14 @@ func decodeCounterSample(r io.ReadSeeker) (Sample, error) {
 				return nil, err
 			}
 		default:
-			fmt.Printf("Unhandled Counter Record Type: %b - %d\n", format, format)
-			_, err := r.Seek(int64(length), 1)
-			if err != nil {
-				return nil, err
+			if rec, err = records.DecodeCounter(r, format); err != nil {
+				fmt.Printf("Error: %s\n", err)
+				_, err := r.Seek(int64(length), 1)
+				if err != nil {
+					return nil, err
+				}
+				continue
 			}
-			continue
 		}
 
 		s.Records = append(s.Records, rec)

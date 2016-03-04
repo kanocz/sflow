@@ -1,5 +1,9 @@
 package records
 
+import (
+	"io"
+)
+
 // HTTP Request Types
 const (
 	HTTPOther   = 0
@@ -32,23 +36,37 @@ type HTTPRequestFlow struct {
 
 // HTTPCounters - TypeHTTPCounterRecord
 type HTTPCounter struct {
-	/*
-			  unsigned int method_option_count;
-		  unsigned int method_get_count;
-		  unsigned int method_head_count;
-		  unsigned int method_post_count;
-		  unsigned int method_put_count;
-		  unsigned int method_delete_count;
-		  unsigned int method_trace_count;
-		  unsigned int method_connect_count;
-		  unsigned int method_other_count;
-		  unsigned int status_1XX_count;
-		  unsigned int status_2XX_count;
-		  unsigned int status_3XX_count;
-		  unsigned int status_4XX_count;
-		  unsigned int status_5XX_count;
-		  unsigned int status_other_count;
-	*/
+	MethodOptionCount  uint32
+	MethodGetCount     uint32
+	MethodHeadCount    uint32
+	MethodPostCount    uint32
+	MethodPutCount     uint32
+	MethodDeleteCount  uint32
+	MethodTraceCount   uint32
+	MethodConnectCount uint32
+	MethodOtherCount   uint32
+	Status1XXCount     uint32
+	Status2XXCount     uint32
+	Status3XXCount     uint32
+	Status4XXCount     uint32
+	Status5XXCount     uint32
+	StatusOtherCount   uint32
+}
+
+// RecordName returns the Name of this flow record
+func (f HTTPCounter) RecordName() string {
+	return "HTTPCounter"
+}
+
+// RecordType returns the ID of the sflow flow record
+func (f HTTPCounter) RecordType() int {
+	return TypeHTTPCounterRecord
+}
+
+func (f HTTPCounter) Encode(w io.Writer) error {
+	var err error
+
+	return err
 }
 
 // ExtendedProxyRequest - TypeHTTPExtendedProxyFlowRecord
