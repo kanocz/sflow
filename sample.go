@@ -3,6 +3,7 @@ package sflow
 import (
 	"encoding/binary"
 	"errors"
+	"github.com/fstelzer/sflow/records"
 	"io"
 )
 
@@ -19,7 +20,7 @@ var (
 
 type Sample interface {
 	SampleType() int
-	GetRecords() []Record
+	GetRecords() []records.Record
 	encode(w io.Writer) error
 }
 

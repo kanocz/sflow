@@ -71,25 +71,16 @@ func (f ExtendedGatewayFlow) calculateBinarySize() int {
 	return size
 }
 
-func DecodeExtendedGatewayFlow(r io.Reader) (ExtendedGatewayFlow, error) {
-	var err error
-
-	f := ExtendedGatewayFlow{}
-
-	_, err = Decode(r, &f)
-
-	if err == nil {
-		// Fill extra fields from decoded data
-		for _, asSegment := range f.DstAsPathSegments {
-			if asSegment.SegType == AsPathSegmentTypeOrdered {
-				// If the AS Segment is ordered then the last Element is the DstAs and the first the DstPeerAs
-				f.DstAs = asSegment.Seg[len(asSegment.Seg)-1:][0]
-				f.DstPeerAs = asSegment.Seg[0:1][0]
-			}
+func (f *ExtendedGatewayFlow) PostDecode() error {
+	for _, asSegment := range f.DstAsPathSegments {
+		if asSegment.SegType == AsPathSegmentTypeOrdered {
+			// If the AS Segment is ordered then the last Element is the DstAs and the first the DstPeerAs
+			f.DstAs = asSegment.Seg[len(asSegment.Seg)-1:][0]
+			f.DstPeerAs = asSegment.Seg[0:1][0]
 		}
 	}
 
-	return f, err
+	return nil
 }
 
 func (f ExtendedGatewayFlow) Encode(w io.Writer) error {

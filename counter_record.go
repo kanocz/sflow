@@ -3,6 +3,7 @@ package sflow
 import (
 	"encoding/binary"
 	"fmt"
+	"github.com/fstelzer/sflow/records"
 	"io"
 	"unsafe"
 )
@@ -307,7 +308,7 @@ func decodeGenericInterfaceCountersRecord(r io.Reader, length uint32) (GenericIn
 	b := make([]byte, int(length))
 	n, _ := r.Read(b)
 	if n != int(length) {
-		return c, ErrDecodingRecord
+		return c, records.ErrDecodingRecord
 	}
 
 	fields := []interface{}{
@@ -362,7 +363,7 @@ func decodeEthernetCountersRecord(r io.Reader, length uint32) (EthernetCounters,
 	b := make([]byte, int(length))
 	n, _ := r.Read(b)
 	if n != int(length) {
-		return c, ErrDecodingRecord
+		return c, records.ErrDecodingRecord
 	}
 
 	fields := []interface{}{
@@ -411,7 +412,7 @@ func decodeTokenRingCountersRecord(r io.Reader, length uint32) (TokenRingCounter
 	b := make([]byte, int(length))
 	n, _ := r.Read(b)
 	if n != int(length) {
-		return c, ErrDecodingRecord
+		return c, records.ErrDecodingRecord
 	}
 
 	fields := []interface{}{
@@ -465,7 +466,7 @@ func decodeVgCountersRecord(r io.Reader, length uint32) (VgCounters, error) {
 	b := make([]byte, int(length))
 	n, _ := r.Read(b)
 	if n != int(length) {
-		return c, ErrDecodingRecord
+		return c, records.ErrDecodingRecord
 	}
 
 	fields := []interface{}{
@@ -515,7 +516,7 @@ func decodeVlanCountersRecord(r io.Reader, length uint32) (VlanCounters, error) 
 	b := make([]byte, int(length))
 	n, _ := r.Read(b)
 	if n != int(length) {
-		return c, ErrDecodingRecord
+		return c, records.ErrDecodingRecord
 	}
 
 	fields := []interface{}{
@@ -557,7 +558,7 @@ func decodeProcessorCountersRecord(r io.Reader, length uint32) (ProcessorCounter
 	b := make([]byte, int(length))
 	n, _ := r.Read(b)
 	if n != int(length) {
-		return c, ErrDecodingRecord
+		return c, records.ErrDecodingRecord
 	}
 
 	fields := []interface{}{
@@ -598,7 +599,7 @@ func decodeHostCPUCountersRecord(r io.Reader, length uint32) (HostCPUCounters, e
 	b := make([]byte, int(length))
 	n, _ := r.Read(b)
 	if n != int(length) {
-		return c, ErrDecodingRecord
+		return c, records.ErrDecodingRecord
 	}
 
 	fields := []interface{}{
@@ -654,7 +655,7 @@ func decodeHostMemoryCountersRecord(r io.Reader, length uint32) (HostMemoryCount
 	b := make([]byte, int(length))
 	n, _ := r.Read(b)
 	if n != int(length) {
-		return c, ErrDecodingRecord
+		return c, records.ErrDecodingRecord
 	}
 
 	fields := []interface{}{
@@ -701,7 +702,7 @@ func decodeHostDiskCountersRecord(r io.Reader, length uint32) (HostDiskCounters,
 	b := make([]byte, int(length))
 	n, _ := r.Read(b)
 	if n != int(length) {
-		return c, ErrDecodingRecord
+		return c, records.ErrDecodingRecord
 	}
 
 	fields := []interface{}{
@@ -746,7 +747,7 @@ func decodeHostNetCountersRecord(r io.Reader, length uint32) (HostNetCounters, e
 	b := make([]byte, int(length))
 	n, _ := r.Read(b)
 	if n != int(length) {
-		return c, ErrDecodingRecord
+		return c, records.ErrDecodingRecord
 	}
 
 	fields := []interface{}{

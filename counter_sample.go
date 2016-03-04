@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"github.com/fstelzer/sflow/records"
 	"io"
 )
 
@@ -30,7 +31,7 @@ type CounterSample struct {
 	SourceIdType     byte
 	SourceIdIndexVal uint32 // NOTE: this is 3 bytes in the datagram
 	numRecords       uint32
-	Records          []Record
+	Records          []records.Record
 }
 
 func (s CounterSample) String() string {
@@ -44,7 +45,7 @@ func (s *CounterSample) SampleType() int {
 	return TypeCounterSample
 }
 
-func (s *CounterSample) GetRecords() []Record {
+func (s *CounterSample) GetRecords() []records.Record {
 	return s.Records
 }
 
@@ -99,7 +100,7 @@ func decodeCounterSample(r io.ReadSeeker) (Sample, error) {
 				MaximumRecordLength, length)
 		}
 
-		var rec Record
+		var rec records.Record
 
 		switch format {
 		case TypeGenericInterfaceCountersRecord:
@@ -175,7 +176,7 @@ func (s *CounterSample) encode(w io.Writer) error {
 	for _, rec := range s.Records {
 		err = rec.Encode(buf)
 		if err != nil {
-			return ErrEncodingRecord
+			return records.ErrEncodingRecord
 		}
 	}
 

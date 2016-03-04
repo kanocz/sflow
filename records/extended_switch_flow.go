@@ -31,22 +31,7 @@ func (f ExtendedSwitchFlow) RecordType() int {
 }
 
 func (f ExtendedSwitchFlow) calculateBinarySize() int {
-	var size int
-
-	size += binary.Size(f)
-	/*size += binary.Size(f.NextHop)
-	size += binary.Size(f.SrcMask)
-	size += binary.Size(f.DstMask)*/
-
-	return size
-}
-
-func DecodedExtendedSwitchFlow(r io.Reader) (ExtendedSwitchFlow, error) {
-	f := ExtendedSwitchFlow{}
-
-	err := binary.Read(r, binary.BigEndian, &f)
-
-	return f, err
+	return binary.Size(f)
 }
 
 func (f ExtendedSwitchFlow) Encode(w io.Writer) error {

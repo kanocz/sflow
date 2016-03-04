@@ -1,4 +1,4 @@
-package sflow
+package records
 
 import (
 	"errors"

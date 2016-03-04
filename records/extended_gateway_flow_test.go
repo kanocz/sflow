@@ -66,7 +66,7 @@ func TestEncodeDecodeExtendedGatewayFlowRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	decoded, err := DecodeExtendedGatewayFlow(b)
+	decoded, err := Decode(b, TypeExtendedGatewayFlowRecord)
 	if err != nil {
 		t.Fatal(err)
 	}

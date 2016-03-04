@@ -8,10 +8,44 @@ import (
 	"reflect"
 )
 
+type PostDecoder interface {
+	PostDecode() error
+}
+
+func Decode(r io.Reader, recordType uint32) (Record, error) {
+	var err error
+
+	switch recordType {
+	case TypeRawPacketFlowRecord:
+		return DecodeRawPacketFlow(r)
+	default:
+		if recordStruct, found := flowRecordTypes[recordType]; found {
+			data := reflect.New(reflect.TypeOf(recordStruct)).Elem()
+
+			_, err = decodeInto(r, data.Addr().Interface())
+
+			// Some records calculate extra data from the decoded values
+			if data, ok := data.Addr().Interface().(PostDecoder); ok {
+				data.PostDecode()
+			}
+
+			return data.Interface().(Record), err
+		}
+	}
+
+	return nil, fmt.Errorf("Record type %d is not implemented yet\n", recordType)
+}
+
 // Decode an sflow packet read from 'r' into the struct given by 's' - The structs datatypes have to match the binary representation in the bytestream exactly
-func Decode(r io.Reader, s interface{}) (int, error) {
+func decodeInto(r io.Reader, s interface{}) (int, error) {
 	var err error
 	var bytesRead int
+
+	// If the provided datastructure has a static size we can decode it directly
+	if size := binary.Size(s); size != -1 {
+		err = binary.Read(r, binary.BigEndian, s)
+		return size, err
+	}
 
 	structure := reflect.TypeOf(s)
 	data := reflect.ValueOf(s)
@@ -24,7 +58,7 @@ func Decode(r io.Reader, s interface{}) (int, error) {
 		data = data.Elem()
 	}
 
-	//fmt.Printf("Decoding into %+#v\n", s)
+	//fmt.Printf("Decoding into %T - %+#v\n", s, s)
 
 	for i := 0; i < structure.NumField(); i++ {
 		field := data.Field(i)
@@ -112,7 +146,7 @@ func Decode(r io.Reader, s interface{}) (int, error) {
 						field.Set(reflect.MakeSlice(field.Type(), int(bufferSize), int(bufferSize)))
 
 						for x := 0; x < int(bufferSize); x++ {
-							Decode(r, field.Index(x).Addr().Interface())
+							decodeInto(r, field.Index(x).Addr().Interface())
 						}
 					default:
 						// For slices of defined length types we can look up the length and decode directly

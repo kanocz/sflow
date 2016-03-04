@@ -1,5 +1,5 @@
 See: http://sflow.org/developers/structures.php
-opque   enterprise  format  struct reference
+opaque   enterprise  format  struct reference
 - [X] sample_data	0	1	flow_sample	sFlow Version 5
 - [X] sample_data	0	2	counter_sample	sFlow Version 5
 - [ ] sample_data	0	3	flow_sample_expanded	sFlow Version 5

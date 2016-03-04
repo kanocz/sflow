@@ -1,6 +1,6 @@
 package records
 
-// sflow flow sample types
+// sflow flow record types
 const (
 	TypeRawPacketFlowRecord     = 1
 	TypeEthernetFrameFlowRecord = 2
@@ -19,6 +19,36 @@ const (
 	TypeExtendedMlpsFecFlowRecord    = 1010
 	TypeExtendedMlpsLvpFecFlowRecord = 1011
 	TypeExtendedVlanFlowRecord       = 1012
+
+	TypeExtendedSocketIPv4FlowRecord      = 2102
+	TypeExtendedSocketIPv6FlowRecord      = 2103
+	TypeExtendedProxySocketIPv4FlowRecord = 2104
+	TypeExtendedProxySocketIPv6FlowRecord = 2105
+	TypeHTTPRequestFlowRecord             = 2206
+	TypeHTTPExtendedProxyFlowRecord       = 2207
+)
+
+// flow sample record data structure mapping
+var flowRecordTypes = map[uint32]interface{}{
+	TypeRawPacketFlowRecord:       RawPacketFlow{},
+	TypeEthernetFrameFlowRecord:   EthernetFrameFlow{},
+	TypeExtendedSwitchFlowRecord:  ExtendedSwitchFlow{},
+	TypeExtendedRouterFlowRecord:  ExtendedRouterFlow{},
+	TypeExtendedGatewayFlowRecord: ExtendedGatewayFlow{},
+}
+
+// sflow counter record types
+const (
+	TypeHTTPCounterRecord = 2201
+)
+
+// IP Header Protocol Types (see: https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers)
+const (
+	IPProtocolICMP = 1
+	IPProtocolTCP  = 6
+	IPProtocolUDP  = 17
+	IPProtocolESP  = 50 // IPSEC
+	IPProtocolAH   = 51 // IPSEC
 )
 
 const (
@@ -39,34 +69,4 @@ const (
 	//#define NFT_8022_SIZ 3
 	//#define NFT_MAX_8023_LEN 1500
 	//#define NFT_MIN_SIZ (NFT_ETHHDR_SIZ + sizeof(struct myiphdr))
-)
-
-// Header Protocol Types found in Raw Packet Flow Record
-const (
-	HeaderProtocolEthernetISO8023   = 1
-	HeaderProtocolISO88024Tokenbus  = 2
-	HeaderProtocolISO88024Tokenring = 3
-	HeaderProtocolFDDI              = 4
-	HeaderProtocolFrameRelay        = 5
-	HeaderProtocolX24               = 6
-	HeaderProtocolPPP               = 7
-	HeaderProtocolSMDS              = 8
-	HeaderProtocolAAL5              = 9
-	HeaderProtocolAAL5IP            = 10
-	HeaderProtocolIPv4              = 11
-	HeaderProtocolIPv6              = 12
-)
-
-// IP Header Protocol Types (see: https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers)
-const (
-	IPProtocolICMP = 1
-	IPProtocolTCP  = 6
-	IPProtocolUDP  = 17
-)
-
-// Raw Packet Header Types
-const (
-	HeaderTypeIPv4 = "0800"
-	HeaderTypeIPv6 = "86DD"
-	//IPX: type_len == 0x0200 || type_len == 0x0201 || type_len == 0x0600
 )

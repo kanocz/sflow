@@ -41,16 +41,6 @@ func (f ExtendedRouterFlow) calculateBinarySize() int {
 	return size
 }
 
-func DecodeExtendedRouterFlow(r io.Reader) (ExtendedRouterFlow, error) {
-	var err error
-
-	f := ExtendedRouterFlow{}
-
-	_, err = Decode(r, &f)
-
-	return f, err
-}
-
 func (f ExtendedRouterFlow) Encode(w io.Writer) error {
 	var err error
 

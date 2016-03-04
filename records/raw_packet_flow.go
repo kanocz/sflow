@@ -10,6 +10,30 @@ import (
 	"net"
 )
 
+// Header Protocol Types found in Raw Packet Flow Record
+const (
+	HeaderProtocolEthernetISO8023   = 1
+	HeaderProtocolISO88024Tokenbus  = 2
+	HeaderProtocolISO88024Tokenring = 3
+	HeaderProtocolFDDI              = 4
+	HeaderProtocolFrameRelay        = 5
+	HeaderProtocolX24               = 6
+	HeaderProtocolPPP               = 7
+	HeaderProtocolSMDS              = 8
+	HeaderProtocolAAL5              = 9
+	HeaderProtocolAAL5IP            = 10
+	HeaderProtocolIPv4              = 11
+	HeaderProtocolIPv6              = 12
+)
+
+// Raw Packet Header Types
+const (
+	HeaderTypeIPv4 = "0800"
+	HeaderTypeIPv6 = "86DD"
+
+//IPX: type_len == 0x0200 || type_len == 0x0201 || type_len == 0x0600
+)
+
 // RawPacketFlow is a raw Ethernet header flow record.
 type RawPacketFlow struct {
 	Protocol      uint32
@@ -118,7 +142,7 @@ func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 	if ipVersion == 4 {
 		ip := IPv4Header{}
 
-		_, err = Decode(h, &ip)
+		_, err = decodeInto(h, &ip)
 		f.DecodedHeader["ip"] = ip
 
 		if err != nil {
@@ -126,10 +150,14 @@ func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 		}
 
 		//Can we decode a following Layer4 Protocol Header?
+		// See https://en.wikipedia.org/wiki/List_of_IP_protocol_numbers
 		switch ip.Protocol {
+		case IPProtocolESP, IPProtocolAH:
+			// No use in decoding ipsec headers
+			break
 		case IPProtocolTCP:
 			tcp := TCPHeader{}
-			_, err = Decode(h, &tcp)
+			_, err = decodeInto(h, &tcp)
 			f.DecodedHeader["tcp"] = tcp
 
 			if err != nil {
@@ -137,14 +165,14 @@ func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 			}
 		case IPProtocolUDP:
 			udp := UDPHeader{}
-			_, err = Decode(h, &udp)
+			_, err = decodeInto(h, &udp)
 			f.DecodedHeader["udp"] = udp
 			if err != nil {
 				return err
 			}
 		case IPProtocolICMP:
 			icmp := ICMPHeader{}
-			_, err = Decode(h, &icmp)
+			_, err = decodeInto(h, &icmp)
 			f.DecodedHeader["icmp"] = icmp
 			if err != nil {
 				return err
@@ -183,7 +211,7 @@ func (f *RawPacketFlow) decodeHeader(headerType uint32) error {
 	switch headerType {
 	case HeaderProtocolEthernetISO8023:
 		ethernet := EthernetHeader{}
-		_, err = Decode(h, &ethernet)
+		_, err = decodeInto(h, &ethernet)
 		f.DecodedHeader["ethernet"] = ethernet
 		if err != nil {
 			return err
