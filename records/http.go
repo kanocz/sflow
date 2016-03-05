@@ -22,19 +22,19 @@ type HTTPRequestFlow struct {
 	Method       uint32
 	Protocol     uint32 /* HTTP protocol version: Encoded as major_number * 1000 + minor_number. e.g. HTTP1.1 is encoded as 1001 */
 	URILen       uint32
-	URI          []byte `lengthLookUp:"URILen"` /* URI exactly as it came from the client */
+	URI          []byte `xdr:"opaque,lengthField=URILen"` /* URI exactly as it came from the client */
 	HostLen      uint32
-	Host         []byte `lengthLookUp:"HostLen"` /* Host value from request header */
+	Host         []byte `xdr:"opaque,lengthField=HostLen"` /* Host value from request header */
 	RefererLen   uint32
-	Referer      []byte `lengthLookUp:"RefererLen"` /* Referer value from request header */
+	Referer      []byte `xdr:"opaque,lengthField=RefererLen"` /* Referer value from request header */
 	UserAgentLen uint32
-	UserAgent    []byte `lengthLookUp:"UserAgentLen"` /* User-Agent value from request header */
+	UserAgent    []byte `xdr:"opaque,lengthField=UserAgentLen"` /* User-Agent value from request header */
 	XFFLen       uint32
-	XFF          []byte `lengthLookUp:"XFFLen"` /* X-Forwarded-For value from request header */
+	XFF          []byte `xdr:"opaque,lengthField=XFFLen"` /* X-Forwarded-For value from request header */
 	AuthUserLen  uint32
-	AuthUser     []byte `lengthLookUp:"AuthUserLen"` /* RFC 1413 identity of user*/
+	AuthUser     []byte `xdr:"opaque,lengthField=AuthUserLen"` /* RFC 1413 identity of user*/
 	MimeTypeLen  uint32
-	MimeType     []byte `lengthLookUp:"MimeTypeLen"` /* Mime-Type of response */
+	MimeType     []byte `xdr:"opaque,lengthField=MimeTypeLen"` /* Mime-Type of response */
 	ReqBytes     uint64 /* Content-Length of request */
 	RespBytes    uint64 /* Content-Length of response */
 	Duration     uint32 /* duration of the operation (in microseconds) */

@@ -9,7 +9,7 @@ import (
 
 type ExtendedRouterFlow struct {
 	NextHopType uint32
-	NextHop     net.IP `ipVersionLookUp:"NextHopType"`
+	NextHop     net.IP `xdr:"lengthField=NextHopType"`
 	SrcMask     uint32
 	DstMask     uint32
 }

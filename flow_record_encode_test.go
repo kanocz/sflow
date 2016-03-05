@@ -50,13 +50,14 @@ func TestEncodeDecodeRawPacketFlowRecord(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	decoded, err := records.DecodeRawPacketFlow(b)
-	decoded.DecodedHeader = nil // We don't care if we decoded the header here
+	decoded, err := records.DecodeFlow(b, records.TypeRawPacketFlowRecord)
+	decoded2 := decoded.(records.RawPacketFlow)
+	decoded2.DecodedHeader = nil // We don't care if we decoded the header here
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if !reflect.DeepEqual(rec, decoded) {
+	if !reflect.DeepEqual(rec, decoded2) {
 		t.Errorf("expected\n%+#v\n, got\n%+#v", rec, decoded)
 	}
 }

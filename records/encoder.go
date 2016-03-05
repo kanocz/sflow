@@ -18,9 +18,10 @@ func Encode(w io.Writer, s interface{}) error {
 
 	for i := 0; i < structure.NumField(); i++ {
 		field := structure.Field(i)
+		flags := parseMarshalFlags(field)
 
 		// Do not encode fields marked with "ignoreOnMarshal" Tags
-		if ignoreField := field.Tag.Get("ignoreOnMarshal"); ignoreField == "true" {
+		if flags.Ignore {
 			continue
 		}
 
@@ -49,20 +50,14 @@ func Encode(w io.Writer, s interface{}) error {
 				case "6":
 					bufferSize = 16
 				default:
-					lookupField := structure.Field(i).Tag.Get("ipVersionLookUp")
-					switch lookupField {
+					ipType := reflect.Indirect(data).FieldByName(flags.LengthField).Uint()
+					switch ipType {
+					case 1:
+						bufferSize = 4
+					case 2:
+						bufferSize = 16
 					default:
-						ipType := reflect.Indirect(data).FieldByName(lookupField).Uint()
-						switch ipType {
-						case 1:
-							bufferSize = 4
-						case 2:
-							bufferSize = 16
-						default:
-							return fmt.Errorf("Invalid Value found in ipVersionLookUp Type Field. Expected 1 or 2 and got: %d", ipType)
-						}
-					case "":
-						return fmt.Errorf("Unable to determine which IP Version to read for field %s\n", field.Type.Name())
+						return fmt.Errorf("Invalid Value found in ipVersionLookUp Type Field. Expected 1 or 2 and got: %d", ipType)
 					}
 				}
 

@@ -9,16 +9,16 @@ import (
 
 type ExtendedGatewayFlow struct {
 	NextHopType          uint32
-	NextHop              net.IP `ipVersionLookUp:"NextHopType"`
+	NextHop              net.IP `xdr:"lengthField=NextHopType"`
 	As                   uint32
 	SrcAs                uint32
 	SrcPeerAs            uint32
-	DstAs                uint32 `ignoreOnMarshal:"true"`
-	DstPeerAs            uint32 `ignoreOnMarshal:"true"`
+	DstAs                uint32 `xdr:"ignore"`
+	DstPeerAs            uint32 `xdr:"ignore"`
 	DstAsPathSegmentsLen uint32
-	DstAsPathSegments    []ExtendedGatewayFlowASPathSegment `lengthLookUp:"DstAsPathSegmentsLen"`
+	DstAsPathSegments    []ExtendedGatewayFlowASPathSegment `xdr:"lengthField=DstAsPathSegmentsLen"`
 	CommunitiesLen       uint32
-	Communities          []uint32 `lengthLookUp:"CommunitiesLen"`
+	Communities          []uint32 `xdr:"lengthField=CommunitiesLen"`
 	LocalPref            uint32
 }
 
@@ -31,7 +31,7 @@ const (
 type ExtendedGatewayFlowASPathSegment struct {
 	SegType uint32 // 1: Unordered Set || 2: Ordered Set
 	SegLen  uint32
-	Seg     []uint32 `lengthLookUp:"SegLen"`
+	Seg     []uint32 `xdr:"lengthField=SegLen"`
 }
 
 func (f ExtendedGatewayFlow) String() string {
@@ -71,7 +71,7 @@ func (f ExtendedGatewayFlow) calculateBinarySize() int {
 	return size
 }
 
-func (f *ExtendedGatewayFlow) PostDecode() error {
+func (f *ExtendedGatewayFlow) PostUnmarshal() error {
 	for _, asSegment := range f.DstAsPathSegments {
 		if asSegment.SegType == AsPathSegmentTypeOrdered {
 			// If the AS Segment is ordered then the last Element is the DstAs and the first the DstPeerAs

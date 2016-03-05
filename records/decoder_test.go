@@ -27,7 +27,7 @@ func TestDecodeGenericRecordStatic(t *testing.T) {
 
 	buffer := bytes.NewBuffer(binaryData)
 	binary.Write(buffer, binary.BigEndian, &testFlow)
-	resultRecord, err := Decode(buffer, TypeExtendedSwitchFlowRecord)
+	resultRecord, err := DecodeFlow(buffer, TypeExtendedSwitchFlowRecord)
 	if err != nil {
 		t.Fatalf("Error: %s\n", err)
 	}
@@ -52,7 +52,7 @@ func TestDecodeGenericRecordDynamic(t *testing.T) {
 	testFlow.Encode(buffer)
 
 	SkipHeaderBytes(buffer)
-	resultRecord, err := Decode(buffer, TypeExtendedRouterFlowRecord)
+	resultRecord, err := DecodeFlow(buffer, TypeExtendedRouterFlowRecord)
 	if err != nil {
 		t.Fatalf("Error: %s\n", err)
 	}

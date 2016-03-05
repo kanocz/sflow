@@ -6,28 +6,62 @@ import (
 	"io"
 	"net"
 	"reflect"
+	"strings"
 )
 
-type PostDecoder interface {
-	PostDecode() error
+type marshalFlags struct {
+	Ignore      bool
+	Opaque      bool
+	LengthField string
+}
+
+func parseMarshalFlags(field reflect.StructField) marshalFlags {
+	flags := marshalFlags{}
+	xdr := field.Tag.Get("xdr")
+	options := strings.Split(xdr, ",")
+	for _, option := range options {
+		switch option {
+		case "opaque":
+			flags.Opaque = true
+		case "ignore":
+			flags.Ignore = true
+		default:
+			// Key/Value Pair options
+			pair := strings.Split(option, "=")
+			switch pair[0] {
+			case "lengthField":
+				flags.LengthField = pair[1]
+			}
+		}
+	}
+
+	return flags
+}
+
+type PostUnmarshal interface {
+	PostUnmarshal() error
 }
 
 func DecodeFlow(r io.Reader, recordType uint32) (Record, error) {
 	var err error
 
 	switch recordType {
-	case TypeRawPacketFlowRecord:
-		return DecodeRawPacketFlow(r)
+	//case TypeRawPacketFlowRecord:
+	//	return DecodeRawPacketFlow(r)
 	default:
 		if recordStruct, found := flowRecordTypes[recordType]; found {
 			data := reflect.New(reflect.TypeOf(recordStruct)).Elem()
 
 			_, err = decodeInto(r, data.Addr().Interface())
 
+			//fmt.Printf("got: %+#v - %s\n", data, err)
+
 			// Some records calculate extra data from the decoded values
-			if data, ok := data.Addr().Interface().(PostDecoder); ok {
-				data.PostDecode()
+			if data, ok := data.Addr().Interface().(PostUnmarshal); ok {
+				data.PostUnmarshal()
 			}
+
+			//fmt.Printf("got: %+#v\n", data)
 
 			return data.Interface().(Record), err
 		}
@@ -47,8 +81,8 @@ func DecodeCounter(r io.Reader, recordType uint32) (Record, error) {
 			_, err = decodeInto(r, data.Addr().Interface())
 
 			// Some records calculate extra data from the decoded values
-			if data, ok := data.Addr().Interface().(PostDecoder); ok {
-				data.PostDecode()
+			if data, ok := data.Addr().Interface().(PostUnmarshal); ok {
+				data.PostUnmarshal()
 			}
 
 			return data.Interface().(Record), err
@@ -84,9 +118,10 @@ func decodeInto(r io.Reader, s interface{}) (int, error) {
 
 	for i := 0; i < structure.NumField(); i++ {
 		field := data.Field(i)
+		flags := parseMarshalFlags(structure.Field(i))
 
-		// Do not decode fields marked with "ignoreOnMarshal" Tags
-		if ignoreField := structure.Field(i).Tag.Get("ignoreOnMarshal"); ignoreField == "true" {
+		// Do not decode fields marked with "xdr:ignore" Tags
+		if flags.Ignore {
 			continue
 		}
 
@@ -124,20 +159,14 @@ func decodeInto(r io.Reader, s interface{}) (int, error) {
 					case "6":
 						bufferSize = 16
 					default:
-						lookupField := structure.Field(i).Tag.Get("ipVersionLookUp")
-						switch lookupField {
+						ipType := reflect.Indirect(data).FieldByName(flags.LengthField).Uint()
+						switch ipType {
+						case 1:
+							bufferSize = 4
+						case 2:
+							bufferSize = 16
 						default:
-							ipType := reflect.Indirect(data).FieldByName(lookupField).Uint()
-							switch ipType {
-							case 1:
-								bufferSize = 4
-							case 2:
-								bufferSize = 16
-							default:
-								return bytesRead, fmt.Errorf("Invalid Value found in ipVersionLookUp Type Field. Expected 1 or 2 and got: %d", ipType)
-							}
-						case "":
-							return bytesRead, fmt.Errorf("Unable to determine which IP Version to read for field %s\n", structure.Field(i).Name)
+							return bytesRead, fmt.Errorf("Invalid Value found in ipVersionLookUp Type Field. Expected 1 or 2 and got: %d", ipType)
 						}
 					}
 
@@ -157,11 +186,18 @@ func decodeInto(r io.Reader, s interface{}) (int, error) {
 					field.SetBytes(buffer)
 				default:
 					// Look up the slices length via the lengthLookUp Tag Field
-					lengthField := structure.Field(i).Tag.Get("lengthLookUp")
-					if lengthField == "" {
+					if flags.LengthField == "" {
 						return bytesRead, fmt.Errorf("Variable length slice (%s) without a defined lengthLookUp. Please specify length lookup field via struct tag: `lengthLookUp:\"fieldname\"`", structure.Field(i).Name)
 					}
-					bufferSize := reflect.Indirect(data).FieldByName(lengthField).Uint()
+
+					//Apply padding
+					var bufferSize uint64
+					if flags.Opaque {
+						size := reflect.Indirect(data).FieldByName(flags.LengthField).Uint()
+						bufferSize = size + (4-(size%4))%4
+					} else {
+						bufferSize = reflect.Indirect(data).FieldByName(flags.LengthField).Uint()
+					}
 
 					if bufferSize > 0 {
 						switch field.Type().Elem().Kind() {
@@ -173,11 +209,8 @@ func decodeInto(r io.Reader, s interface{}) (int, error) {
 								decodeInto(r, field.Index(x).Addr().Interface())
 							}
 						default:
-							//Apply padding
-							size := bufferSize + (4-(bufferSize%4))%4
-
 							// For slices of defined length types we can look up the length and decode directly
-							field.Set(reflect.MakeSlice(field.Type(), int(size), int(size)))
+							field.Set(reflect.MakeSlice(field.Type(), int(bufferSize), int(bufferSize)))
 
 							// Read directly from io
 							if err = binary.Read(r, binary.BigEndian, field.Addr().Interface()); err != nil {

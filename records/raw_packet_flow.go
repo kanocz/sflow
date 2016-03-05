@@ -40,8 +40,8 @@ type RawPacketFlow struct {
 	FrameLength   uint32
 	Stripped      uint32
 	HeaderSize    uint32
-	Header        []byte
-	DecodedHeader map[string]interface{}
+	Header        []byte                 `xdr:"opaque,lengthField=HeaderSize"`
+	DecodedHeader map[string]interface{} `xdr:"ignore"`
 }
 
 // EthernetHeader as found in RawPacketFlow.Header
@@ -251,61 +251,8 @@ func (f *RawPacketFlow) decodeHeader(headerType uint32) error {
 	return err
 }
 
-// DecodeRawPacketFlow decodes an TypeRawPacketFlowRecord
-func DecodeRawPacketFlow(r io.Reader) (RawPacketFlow, error) {
-	f := RawPacketFlow{}
-
-	var err error
-
-	err = binary.Read(r, binary.BigEndian, &f.Protocol)
-	if err != nil {
-		return f, err
-	}
-
-	err = binary.Read(r, binary.BigEndian, &f.FrameLength)
-	if err != nil {
-		return f, err
-	}
-
-	err = binary.Read(r, binary.BigEndian, &f.Stripped)
-	if err != nil {
-		return f, err
-	}
-
-	err = binary.Read(r, binary.BigEndian, &f.HeaderSize)
-	if err != nil {
-		return f, err
-	}
-	if f.HeaderSize > MaximumHeaderLength {
-		return f, fmt.Errorf("sflow: header length more than %d: %d",
-			MaximumHeaderLength, f.HeaderSize)
-	}
-
-	padding := (4 - f.HeaderSize) % 4
-	if padding < 0 {
-		padding += 4
-	}
-
-	f.Header = make([]byte, f.HeaderSize+padding)
-
-	_, err = r.Read(f.Header)
-	if err != nil {
-		return f, err
-	}
-
-	// We need to consume the padded length,
-	// but len(Header) should still be HeaderSize.
-	f.Header = f.Header[:f.HeaderSize]
-
-	// Try to decode the retrieved headers
-	if err = f.decodeHeader(f.Protocol); err != nil {
-		/*if err = io.ErrUnexpectedEOF {
-		}*/
-		// we don't care so much if it succeeds
-		return f, nil
-	}
-
-	return f, err
+func (f *RawPacketFlow) PostUnmarshal() error {
+	return f.decodeHeader(f.Protocol)
 }
 
 // Encode create the binary sflow representation of f
