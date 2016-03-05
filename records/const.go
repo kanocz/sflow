@@ -20,21 +20,26 @@ const (
 	TypeExtendedMlpsLvpFecFlowRecord = 1011
 	TypeExtendedVlanFlowRecord       = 1012
 
-	TypeExtendedSocketIPv4FlowRecord      = 2102
-	TypeExtendedSocketIPv6FlowRecord      = 2103
-	TypeExtendedProxySocketIPv4FlowRecord = 2104
-	TypeExtendedProxySocketIPv6FlowRecord = 2105
+	TypeExtendedSocketIPv4FlowRecord      = 2100
+	TypeExtendedSocketIPv6FlowRecord      = 2101
+	TypeExtendedProxySocketIPv4FlowRecord = 2102
+	TypeExtendedProxySocketIPv6FlowRecord = 2103
 	TypeHTTPRequestFlowRecord             = 2206
 	TypeHTTPExtendedProxyFlowRecord       = 2207
 )
 
 // flow sample record data structure mapping
 var flowRecordTypes = map[uint32]interface{}{
-	TypeRawPacketFlowRecord:       RawPacketFlow{},
-	TypeEthernetFrameFlowRecord:   EthernetFrameFlow{},
-	TypeExtendedSwitchFlowRecord:  ExtendedSwitchFlow{},
-	TypeExtendedRouterFlowRecord:  ExtendedRouterFlow{},
-	TypeExtendedGatewayFlowRecord: ExtendedGatewayFlow{},
+	TypeRawPacketFlowRecord:               RawPacketFlow{},
+	TypeEthernetFrameFlowRecord:           EthernetFrameFlow{},
+	TypeExtendedSwitchFlowRecord:          ExtendedSwitchFlow{},
+	TypeExtendedRouterFlowRecord:          ExtendedRouterFlow{},
+	TypeExtendedGatewayFlowRecord:         ExtendedGatewayFlow{},
+	TypeExtendedSocketIPv4FlowRecord:      ExtendedSocketIPv4Flow{},
+	TypeExtendedSocketIPv6FlowRecord:      ExtendedSocketIPv6Flow{},
+	TypeExtendedProxySocketIPv4FlowRecord: ExtendedProxySocketIPv4Flow{},
+	TypeExtendedProxySocketIPv6FlowRecord: ExtendedProxySocketIPv6Flow{},
+	TypeHTTPRequestFlowRecord:             HTTPRequestFlow{},
 }
 
 // sflow counter record types

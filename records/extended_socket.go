@@ -2,6 +2,7 @@ package records
 
 import (
 	"encoding/binary"
+	"io"
 	"net"
 )
 
@@ -26,6 +27,12 @@ func (f ExtendedSocketIPv4Flow) calculateBinarySize() int {
 	return binary.Size(f)
 }
 
+func (f ExtendedSocketIPv4Flow) Encode(w io.Writer) error {
+	var err error
+
+	return err
+}
+
 // ExtendedSocketIPv6Flow - TypeExtendedSocketIPv6FlowRecord
 type ExtendedSocketIPv6Flow struct {
 	Protocol   uint32
@@ -47,9 +54,15 @@ func (f ExtendedSocketIPv6Flow) calculateBinarySize() int {
 	return binary.Size(f)
 }
 
+func (f ExtendedSocketIPv6Flow) Encode(w io.Writer) error {
+	var err error
+
+	return err
+}
+
 // ExtendedProxySocketIPv4 - TypeExtendedProxySocketIPv4FlowRecord
 type ExtendedProxySocketIPv4Flow struct {
-	socket ExtendedSocketIPv4Flow
+	Socket ExtendedSocketIPv4Flow
 }
 
 func (f ExtendedProxySocketIPv4Flow) RecordName() string {
@@ -64,9 +77,15 @@ func (f ExtendedProxySocketIPv4Flow) calculateBinarySize() int {
 	return binary.Size(f)
 }
 
+func (f ExtendedProxySocketIPv4Flow) Encode(w io.Writer) error {
+	var err error
+
+	return err
+}
+
 // ExtendedProxySocketIPv6 - TypeExtendedProxySocketIPv6FlowRecord
 type ExtendedProxySocketIPv6Flow struct {
-	socket ExtendedSocketIPv6Flow
+	Socket ExtendedSocketIPv6Flow
 }
 
 func (f ExtendedProxySocketIPv6Flow) RecordName() string {
@@ -79,4 +98,10 @@ func (f ExtendedProxySocketIPv6Flow) RecordType() int {
 
 func (f ExtendedProxySocketIPv6Flow) calculateBinarySize() int {
 	return binary.Size(f)
+}
+
+func (f ExtendedProxySocketIPv6Flow) Encode(w io.Writer) error {
+	var err error
+
+	return err
 }

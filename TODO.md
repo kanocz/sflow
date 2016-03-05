@@ -45,10 +45,10 @@ opaque   enterprise  format  struct reference
 - [ ] flow_data	0	2001	extended_nfs_storage_transaction	Host performance statistics
 - [ ] flow_data	0	2002	extensed_scsi_storage_transaction	Host performance statistics
 - [ ] flow_data	0	2003	extended_http_transaction	Host performance statistics
-- [ ] flow_data	0	2100	extended_socket_ipv4	sFlow Host Structures
-- [ ] flow_data	0	2101	extended_socket_ipv6	sFlow Host Structures
-- [ ] flow_data	0	2102	extended_proxy_socket_ipv4	sFlow HTTP Structures
-- [ ] flow_data	0	2103	extended_proxy_socket_ipv6	sFlow HTTP Structures
+- [X] flow_data	0	2100	extended_socket_ipv4	sFlow Host Structures
+- [X] flow_data	0	2101	extended_socket_ipv6	sFlow Host Structures
+- [X] flow_data	0	2102	extended_proxy_socket_ipv4	sFlow HTTP Structures
+- [X] flow_data	0	2103	extended_proxy_socket_ipv6	sFlow HTTP Structures
 - [ ] flow_data	0	2200	memcached_operation	sFlow Memcache Structures
 - [ ] flow_data	0	2201	http_request (deprecated)	sFlow for HTTP
 - [ ] flow_data	0	2202	app_operation	sFlow Application Structures

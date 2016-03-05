@@ -110,9 +110,10 @@ func decodeFlowSample(r io.ReadSeeker) (Sample, error) {
 		}
 
 		var rec records.Record
+		//fmt.Printf("sflow: Decoding record type %d with length %d\n", format, length)
 
 		if rec, err = records.DecodeFlow(r, format); err != nil {
-			fmt.Printf("Error: %s\n", err)
+			//return nil, err
 			_, err := r.Seek(int64(length), 1)
 			if err != nil {
 				return nil, err

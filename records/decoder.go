@@ -90,7 +90,8 @@ func decodeInto(r io.Reader, s interface{}) (int, error) {
 			continue
 		}
 
-		//fmt.Printf("Kind: %s\n", field.Kind())
+		//fmt.Printf("Kind: %s - %s\n", field.Kind(), field.CanSet())
+		//fmt.Printf("State: %s\n", s)
 
 		if field.CanSet() {
 			switch field.Kind() {
@@ -162,25 +163,34 @@ func decodeInto(r io.Reader, s interface{}) (int, error) {
 					}
 					bufferSize := reflect.Indirect(data).FieldByName(lengthField).Uint()
 
-					switch field.Type().Elem().Kind() {
-					case reflect.Struct, reflect.Slice, reflect.Array:
-						// For slices of unspecified types we call Decode revursively for every element
-						field.Set(reflect.MakeSlice(field.Type(), int(bufferSize), int(bufferSize)))
+					if bufferSize > 0 {
+						switch field.Type().Elem().Kind() {
+						case reflect.Struct, reflect.Slice, reflect.Array:
+							// For slices of unspecified types we call Decode revursively for every element
+							field.Set(reflect.MakeSlice(field.Type(), int(bufferSize), int(bufferSize)))
 
-						for x := 0; x < int(bufferSize); x++ {
-							decodeInto(r, field.Index(x).Addr().Interface())
-						}
-					default:
-						// For slices of defined length types we can look up the length and decode directly
-						field.Set(reflect.MakeSlice(field.Type(), int(bufferSize), int(bufferSize)))
+							for x := 0; x < int(bufferSize); x++ {
+								decodeInto(r, field.Index(x).Addr().Interface())
+							}
+						default:
+							//Apply padding
+							size := bufferSize + (4-(bufferSize%4))%4
 
-						// Read directly from io
-						if err = binary.Read(r, binary.BigEndian, field.Addr().Interface()); err != nil {
-							return bytesRead, err
+							// For slices of defined length types we can look up the length and decode directly
+							field.Set(reflect.MakeSlice(field.Type(), int(size), int(size)))
+
+							// Read directly from io
+							if err = binary.Read(r, binary.BigEndian, field.Addr().Interface()); err != nil {
+								return bytesRead, err
+							}
+							bytesRead += binary.Size(field.Addr().Interface())
 						}
-						bytesRead += binary.Size(field.Addr().Interface())
 					}
 				}
+			case reflect.Struct:
+				// For structs we call Decode revursively
+				field.Set(reflect.Zero(field.Type()))
+				decodeInto(r, field.Addr().Interface())
 
 			default:
 				return bytesRead, fmt.Errorf("Unhandled Field Kind: %s", field.Kind())

@@ -19,19 +19,42 @@ const (
 
 // HTTPRequestFlow - TypeHTTPRequestFlowRecord
 type HTTPRequestFlow struct {
-	//HTTP_method method;        /* method */
-	//version protocol;          /* HTTP protocol version */
-	//string<255> uri;           /* URI exactly as it came from the client */
-	//string<64> host;           /* Host value from request header */
-	//string<255> referer;       /* Referer value from request header */
-	//string<128> useragent;     /* User-Agent value from request header */
-	//string<64> xff;            /* X-Forwarded-For value from request header */
-	//string<32> authuser;       /* RFC 1413 identity of user*/
-	//string<64> mime-type;      /* Mime-Type of response */
-	//unsigned hyper req_bytes;  /* Content-Length of request */
-	//unsigned hyper resp_bytes; /* Content-Length of response */
-	//unsigned int uS;           /* duration of the operation (in microseconds) */
-	//int status;                /* HTTP status code */
+	Method       uint32
+	Protocol     uint32 /* HTTP protocol version: Encoded as major_number * 1000 + minor_number. e.g. HTTP1.1 is encoded as 1001 */
+	URILen       uint32
+	URI          []byte `lengthLookUp:"URILen"` /* URI exactly as it came from the client */
+	HostLen      uint32
+	Host         []byte `lengthLookUp:"HostLen"` /* Host value from request header */
+	RefererLen   uint32
+	Referer      []byte `lengthLookUp:"RefererLen"` /* Referer value from request header */
+	UserAgentLen uint32
+	UserAgent    []byte `lengthLookUp:"UserAgentLen"` /* User-Agent value from request header */
+	XFFLen       uint32
+	XFF          []byte `lengthLookUp:"XFFLen"` /* X-Forwarded-For value from request header */
+	AuthUserLen  uint32
+	AuthUser     []byte `lengthLookUp:"AuthUserLen"` /* RFC 1413 identity of user*/
+	MimeTypeLen  uint32
+	MimeType     []byte `lengthLookUp:"MimeTypeLen"` /* Mime-Type of response */
+	ReqBytes     uint64 /* Content-Length of request */
+	RespBytes    uint64 /* Content-Length of response */
+	Duration     uint32 /* duration of the operation (in microseconds) */
+	Status       uint32 /* HTTP status code */
+}
+
+// RecordName returns the Name of this flow record
+func (f HTTPRequestFlow) RecordName() string {
+	return "HTTPRequestFlow"
+}
+
+// RecordType returns the ID of the sflow flow record
+func (f HTTPRequestFlow) RecordType() int {
+	return TypeHTTPRequestFlowRecord
+}
+
+func (f HTTPRequestFlow) Encode(w io.Writer) error {
+	var err error
+
+	return err
 }
 
 // HTTPCounters - TypeHTTPCounterRecord
