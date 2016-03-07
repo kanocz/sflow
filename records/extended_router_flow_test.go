@@ -13,7 +13,7 @@ func TestCalculateBinarySizeExtendedRouterFlow(t *testing.T) {
 		DstMask:     1,
 	}
 
-	size := rec.calculateBinarySize()
+	size := rec.BinarySize()
 	if size != 28 {
 		t.Errorf("expected\n%+#v\n, got\n%+#v", 76, size)
 	}

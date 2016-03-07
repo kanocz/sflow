@@ -1,10 +1,12 @@
 package records
 
 import (
+	"bytes"
+	"reflect"
 	"testing"
 )
 
-func TestCalculateBinarySizeExtendedSwitchFlow(t *testing.T) {
+func TestEncodeDecodeExtendedSwitchFlow(t *testing.T) {
 	rec := ExtendedSwitchFlow{
 		SourceVlan:          1234,
 		SourcePriority:      15,
@@ -12,8 +14,21 @@ func TestCalculateBinarySizeExtendedSwitchFlow(t *testing.T) {
 		DestinationPriority: 1,
 	}
 
-	size := rec.calculateBinarySize()
-	if size != 16 {
-		t.Errorf("expected\n%+#v\n, got\n%+#v", 76, size)
+	b := &bytes.Buffer{}
+
+	err := Encode(b, rec)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	SkipHeaderBytes(b)
+
+	decoded, err := DecodeFlow(b, TypeExtendedSwitchFlowRecord)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !reflect.DeepEqual(rec, decoded) {
+		t.Errorf("expected\n%+#v\n, got\n%+#v", rec, decoded)
 	}
 }

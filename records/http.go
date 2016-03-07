@@ -51,13 +51,7 @@ func (f HTTPRequestFlow) RecordType() int {
 	return TypeHTTPRequestFlowRecord
 }
 
-func (f HTTPRequestFlow) Encode(w io.Writer) error {
-	var err error
-
-	return err
-}
-
-// HTTPCounters - TypeHTTPCounterRecord
+// HTTPCounter - TypeHTTPCounterRecord
 type HTTPCounter struct {
 	MethodOptionCount  uint32
 	MethodGetCount     uint32
@@ -86,14 +80,9 @@ func (f HTTPCounter) RecordType() int {
 	return TypeHTTPCounterRecord
 }
 
-func (f HTTPCounter) Encode(w io.Writer) error {
-	var err error
-
-	return err
-}
-
-// ExtendedProxyRequest - TypeHTTPExtendedProxyFlowRecord
+// ExtendedProxyRequestFlow - TypeHTTPExtendedProxyFlowRecord
 type ExtendedProxyRequestFlow struct {
+	//FIXME: Implement me
 	//string<255> uri;           /* URI in request to downstream server */
 	//string<64>  host;          /* Host in request to downstream server */
 }

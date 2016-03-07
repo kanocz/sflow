@@ -49,7 +49,7 @@ func TestDecodeGenericRecordDynamic(t *testing.T) {
 
 	buffer := bytes.NewBuffer(binaryData)
 
-	testFlow.Encode(buffer)
+	Encode(buffer, testFlow)
 
 	SkipHeaderBytes(buffer)
 	resultRecord, err := DecodeFlow(buffer, TypeExtendedRouterFlowRecord)

@@ -25,7 +25,7 @@ func TestCalculateBinarySizeExtendedGatewayFlow(t *testing.T) {
 		LocalPref:      255,
 	}
 
-	size := rec.calculateBinarySize()
+	size := rec.BinarySize()
 	if size != 76 {
 		t.Errorf("expected\n%+#v\n, got\n%+#v", 76, size)
 	}
@@ -53,18 +53,12 @@ func TestEncodeDecodeExtendedGatewayFlowRecord(t *testing.T) {
 
 	b := &bytes.Buffer{}
 
-	err := rec.Encode(b)
+	err := Encode(b, rec)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Skip the header section. It's 8 bytes.
-	var headerBytes [8]byte
-
-	_, err = b.Read(headerBytes[:])
-	if err != nil {
-		t.Fatal(err)
-	}
+	SkipHeaderBytes(b)
 
 	decoded, err := DecodeFlow(b, TypeExtendedGatewayFlowRecord)
 	if err != nil {

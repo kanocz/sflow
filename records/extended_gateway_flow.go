@@ -3,10 +3,10 @@ package records
 import (
 	"encoding/binary"
 	"fmt"
-	"io"
 	"net"
 )
 
+// ExtendedGatewayFlow - TypeExtendedGatewayFlowRecord
 type ExtendedGatewayFlow struct {
 	NextHopType          uint32
 	NextHop              net.IP `xdr:"lengthField=NextHopType"`
@@ -28,6 +28,7 @@ const (
 	AsPathSegmentTypeOrdered   = 2
 )
 
+// ExtendedGatewayFlowASPathSegment defines an AS Path (either ordered or unordered)
 type ExtendedGatewayFlowASPathSegment struct {
 	SegType uint32 // 1: Unordered Set || 2: Ordered Set
 	SegLen  uint32
@@ -50,7 +51,9 @@ func (f ExtendedGatewayFlow) RecordType() int {
 	return TypeExtendedGatewayFlowRecord
 }
 
-func (f ExtendedGatewayFlow) calculateBinarySize() int {
+// BinarySize calculates the binary size this object will have
+// This can vary as net.IP can store IPv4 or IPv6 values and the ASPath and Communities have variable length as well
+func (f ExtendedGatewayFlow) BinarySize() int {
 	var size int
 
 	size += binary.Size(f.NextHopType)
@@ -71,6 +74,7 @@ func (f ExtendedGatewayFlow) calculateBinarySize() int {
 	return size
 }
 
+// PostUnmarshal looks for an ordered AS Path to fill in DstA and DstPeerAs
 func (f *ExtendedGatewayFlow) PostUnmarshal() error {
 	for _, asSegment := range f.DstAsPathSegments {
 		if asSegment.SegType == AsPathSegmentTypeOrdered {
@@ -81,26 +85,4 @@ func (f *ExtendedGatewayFlow) PostUnmarshal() error {
 	}
 
 	return nil
-}
-
-func (f ExtendedGatewayFlow) Encode(w io.Writer) error {
-	var err error
-
-	err = binary.Write(w, binary.BigEndian, uint32(f.RecordType()))
-	if err != nil {
-		fmt.Printf("error: %s", err)
-		return err
-	}
-
-	// Calculate Total Record Length
-	encodedRecordLength := f.calculateBinarySize()
-
-	err = binary.Write(w, binary.BigEndian, uint32(encodedRecordLength))
-	if err != nil {
-		return err
-	}
-
-	err = Encode(w, f)
-
-	return err
 }

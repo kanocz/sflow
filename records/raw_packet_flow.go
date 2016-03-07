@@ -251,6 +251,7 @@ func (f *RawPacketFlow) decodeHeader(headerType uint32) error {
 	return err
 }
 
+// PostUnmarshal tries to decode as much of the contained Packet Header as possible depending on the contained protocols
 func (f *RawPacketFlow) PostUnmarshal() error {
 	return f.decodeHeader(f.Protocol)
 }

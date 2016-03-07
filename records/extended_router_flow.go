@@ -3,10 +3,10 @@ package records
 import (
 	"encoding/binary"
 	"fmt"
-	"io"
 	"net"
 )
 
+// ExtendedRouterFlow - TypeExtendedRouterFlowRecord
 type ExtendedRouterFlow struct {
 	NextHopType uint32
 	NextHop     net.IP `xdr:"lengthField=NextHopType"`
@@ -30,7 +30,8 @@ func (f ExtendedRouterFlow) RecordType() int {
 	return TypeExtendedRouterFlowRecord
 }
 
-func (f ExtendedRouterFlow) calculateBinarySize() int {
+// BinarySize calculcated the binary size of the object since net.IP can contain IPv4 or IPv6 addresses
+func (f ExtendedRouterFlow) BinarySize() int {
 	var size int
 
 	size += binary.Size(f.NextHopType)
@@ -39,26 +40,4 @@ func (f ExtendedRouterFlow) calculateBinarySize() int {
 	size += binary.Size(f.DstMask)
 
 	return size
-}
-
-func (f ExtendedRouterFlow) Encode(w io.Writer) error {
-	var err error
-
-	err = binary.Write(w, binary.BigEndian, uint32(f.RecordType()))
-	if err != nil {
-		fmt.Printf("error: %s", err)
-		return err
-	}
-
-	// Calculate Total Record Length
-	encodedRecordLength := f.calculateBinarySize()
-
-	err = binary.Write(w, binary.BigEndian, uint32(encodedRecordLength))
-	if err != nil {
-		return err
-	}
-
-	err = Encode(w, f)
-
-	return err
 }

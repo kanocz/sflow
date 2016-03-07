@@ -7,12 +7,53 @@ import (
 	"reflect"
 )
 
-// Encode an sflow packet from 's' into 'w' - The structs datatypes define the binary representation
-func Encode(w io.Writer, s interface{}) error {
+// Sizable Records have a custom BinarySize function because their size cannot be determined by a simple binary.Size
+// They usually contain dynamic / union-like values
+type Sizable interface {
+	BinarySize() int
+}
+
+// Encode the given record in XDR Format and write it into w
+func Encode(w io.Writer, record Record) error {
+	var err error
+
+	// Write type and length of record
+	if err = binary.Write(w, binary.BigEndian, uint32(record.RecordType())); err != nil {
+		return err
+	}
+
+	// Calculate Total Record Length
+	var encodedRecordLength int
+	if data, ok := record.(Sizable); ok {
+		encodedRecordLength = data.BinarySize()
+	} else {
+		encodedRecordLength = binary.Size(record)
+	}
+
+	if err = binary.Write(w, binary.BigEndian, uint32(encodedRecordLength)); err != nil {
+		return err
+	}
+
+	if err = encodeStruct(w, record); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func encodeStruct(w io.Writer, s interface{}) error {
 	var err error
 
 	structure := reflect.TypeOf(s)
 	data := reflect.ValueOf(s)
+
+	if structure.Kind() == reflect.Interface || structure.Kind() == reflect.Ptr {
+		structure = structure.Elem()
+	}
+
+	if data.Kind() == reflect.Interface || data.Kind() == reflect.Ptr {
+		data = data.Elem()
+	}
 
 	//fmt.Printf("Encoding %+#v\n", s)
 
@@ -72,15 +113,16 @@ func Encode(w io.Writer, s interface{}) error {
 					}
 				}
 			default:
+				// FIXME: Add padding if necessary for opaque fields
 				switch reflect.SliceOf(field.Type).Elem().String() {
-				case "[]uint32":
+				case "[]uint64", "[]uint32", "[]uint16", "[]uint8":
 					// Write directly to io
 					if err = binary.Write(w, binary.BigEndian, data.FieldByIndex(field.Index).Interface()); err != nil {
 						return err
 					}
 				default:
 					for x := 0; x < data.FieldByIndex(field.Index).Len(); x++ {
-						Encode(w, data.FieldByIndex(field.Index).Index(x).Interface())
+						encodeStruct(w, data.FieldByIndex(field.Index).Index(x).Interface())
 					}
 				}
 			}

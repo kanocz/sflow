@@ -15,22 +15,14 @@ type ExtendedSocketIPv4Flow struct {
 	RemotePort uint32
 }
 
+// RecordName returns the Name of this flow record
 func (f ExtendedSocketIPv4Flow) RecordName() string {
 	return "ExtendedSocketIPv4Flow"
 }
 
+// RecordType returns the ID of the sflow flow record
 func (f ExtendedSocketIPv4Flow) RecordType() int {
 	return TypeExtendedSocketIPv4FlowRecord
-}
-
-func (f ExtendedSocketIPv4Flow) calculateBinarySize() int {
-	return binary.Size(f)
-}
-
-func (f ExtendedSocketIPv4Flow) Encode(w io.Writer) error {
-	var err error
-
-	return err
 }
 
 // ExtendedSocketIPv6Flow - TypeExtendedSocketIPv6FlowRecord
@@ -42,66 +34,42 @@ type ExtendedSocketIPv6Flow struct {
 	RemotePort uint32
 }
 
+// RecordName returns the Name of this flow record
 func (f ExtendedSocketIPv6Flow) RecordName() string {
 	return "ExtendedSocketIPv6Flow"
 }
 
+// RecordType returns the ID of the sflow flow record
 func (f ExtendedSocketIPv6Flow) RecordType() int {
 	return TypeExtendedSocketIPv6FlowRecord
 }
 
-func (f ExtendedSocketIPv6Flow) calculateBinarySize() int {
-	return binary.Size(f)
-}
-
-func (f ExtendedSocketIPv6Flow) Encode(w io.Writer) error {
-	var err error
-
-	return err
-}
-
-// ExtendedProxySocketIPv4 - TypeExtendedProxySocketIPv4FlowRecord
+// ExtendedProxySocketIPv4Flow - TypeExtendedProxySocketIPv4FlowRecord
 type ExtendedProxySocketIPv4Flow struct {
 	Socket ExtendedSocketIPv4Flow
 }
 
+// RecordName returns the Name of this flow record
 func (f ExtendedProxySocketIPv4Flow) RecordName() string {
 	return "ExtendedProxySocketIPv4Flow"
 }
 
+// RecordType returns the ID of the sflow flow record
 func (f ExtendedProxySocketIPv4Flow) RecordType() int {
 	return TypeExtendedProxySocketIPv4FlowRecord
 }
 
-func (f ExtendedProxySocketIPv4Flow) calculateBinarySize() int {
-	return binary.Size(f)
-}
-
-func (f ExtendedProxySocketIPv4Flow) Encode(w io.Writer) error {
-	var err error
-
-	return err
-}
-
-// ExtendedProxySocketIPv6 - TypeExtendedProxySocketIPv6FlowRecord
+// ExtendedProxySocketIPv6Flow - TypeExtendedProxySocketIPv6FlowRecord
 type ExtendedProxySocketIPv6Flow struct {
 	Socket ExtendedSocketIPv6Flow
 }
 
+// RecordName returns the Name of this flow record
 func (f ExtendedProxySocketIPv6Flow) RecordName() string {
 	return "ExtendedProxySocketIPv6Flow"
 }
 
+// RecordType returns the ID of the sflow flow record
 func (f ExtendedProxySocketIPv6Flow) RecordType() int {
 	return TypeExtendedProxySocketIPv6FlowRecord
-}
-
-func (f ExtendedProxySocketIPv6Flow) calculateBinarySize() int {
-	return binary.Size(f)
-}
-
-func (f ExtendedProxySocketIPv6Flow) Encode(w io.Writer) error {
-	var err error
-
-	return err
 }

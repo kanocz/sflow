@@ -38,10 +38,13 @@ func parseMarshalFlags(field reflect.StructField) marshalFlags {
 	return flags
 }
 
+// The PostUnmarshal function will be called on the structure after it has been decoded
+// This allow for filling formerly ignored fields with data from the decoded values
 type PostUnmarshal interface {
 	PostUnmarshal() error
 }
 
+// DecodeFlow tries to decode a recordType Flow record and returns it
 func DecodeFlow(r io.Reader, recordType uint32) (Record, error) {
 	var err error
 
@@ -70,6 +73,7 @@ func DecodeFlow(r io.Reader, recordType uint32) (Record, error) {
 	return nil, fmt.Errorf("Flow record type %d is not implemented yet\n", recordType)
 }
 
+// DecodeCounter tries to decode a recordType Counter record and returns it
 func DecodeCounter(r io.Reader, recordType uint32) (Record, error) {
 	var err error
 

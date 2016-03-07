@@ -7,6 +7,7 @@ import (
 	"io"
 )
 
+// EthernetFrameFlow - TypeEthernetFrameFlowRecord
 type EthernetFrameFlow struct {
 	Dot3StatsAlignmentErrors           uint32
 	Dot3StatsFCSErrors                 uint32
@@ -21,23 +22,6 @@ type EthernetFrameFlow struct {
 	Dot3StatsFrameTooLongs             uint32
 	Dot3StatsInternalMacReceiveErrors  uint32
 	Dot3StatsSymbolErrors              uint32
-	/*
-	   struct ethernet_counters {
-	      unsigned int dot3StatsAlignmentErrors;
-	      unsigned int dot3StatsFCSErrors;
-	      unsigned int dot3StatsSingleCollisionFrames;
-	      unsigned int dot3StatsMultipleCollisionFrames;
-	      unsigned int dot3StatsSQETestErrors;
-	      unsigned int dot3StatsDeferredTransmissions;
-	      unsigned int dot3StatsLateCollisions;
-	      unsigned int dot3StatsExcessiveCollisions;
-	      unsigned int dot3StatsInternalMacTransmitErrors;
-	      unsigned int dot3StatsCarrierSenseErrors;
-	      unsigned int dot3StatsFrameTooLongs;
-	      unsigned int dot3StatsInternalMacReceiveErrors;
-	      unsigned int dot3StatsSymbolErrors;
-	   }
-	*/
 }
 
 func (f EthernetFrameFlow) String() string {
@@ -54,27 +38,4 @@ func (f EthernetFrameFlow) RecordType() int {
 // RecordName returns the Name of this flow record
 func (f EthernetFrameFlow) RecordName() string {
 	return "EthernerFrameFlow"
-}
-
-func DecodeEthernetFrameFlow(r io.Reader) (EthernetFrameFlow, error) {
-	f := EthernetFrameFlow{}
-
-	var err error
-
-	err = binary.Read(r, binary.BigEndian, &f)
-	if err != nil {
-		return f, err
-	}
-
-	return f, err
-}
-
-func (f EthernetFrameFlow) Encode(w io.Writer) error {
-	var err error
-
-	err = binary.Write(w, binary.BigEndian, f)
-	if err != nil {
-		return err
-	}
-	return nil
 }
