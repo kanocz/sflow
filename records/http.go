@@ -1,9 +1,5 @@
 package records
 
-import (
-	"io"
-)
-
 // HTTP Request Types
 const (
 	HTTPOther   = 0

@@ -1,8 +1,6 @@
 package records
 
 import (
-	"encoding/binary"
-	"io"
 	"net"
 )
 

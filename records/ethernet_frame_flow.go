@@ -2,9 +2,6 @@ package records
 
 import (
 	"fmt"
-	//"bytes"
-	"encoding/binary"
-	"io"
 )
 
 // EthernetFrameFlow - TypeEthernetFrameFlowRecord
