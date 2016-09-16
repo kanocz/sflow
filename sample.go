@@ -3,7 +3,7 @@ package sflow
 import (
 	"encoding/binary"
 	"errors"
-	"github.com/fstelzer/sflow/records"
+	"github.com/yseto/sflow/records"
 	"io"
 )
 

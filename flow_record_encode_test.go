@@ -2,7 +2,7 @@ package sflow
 
 import (
 	"bytes"
-	"github.com/fstelzer/sflow/records"
+	"github.com/yseto/sflow/records"
 	"reflect"
 	"testing"
 )

@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/fstelzer/sflow/records"
+	"github.com/yseto/sflow/records"
 	"io"
 )
 

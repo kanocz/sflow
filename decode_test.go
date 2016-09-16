@@ -1,7 +1,7 @@
 package sflow
 
 import (
-	"github.com/fstelzer/sflow/records"
+	"github.com/yseto/sflow/records"
 	"os"
 	"testing"
 )
