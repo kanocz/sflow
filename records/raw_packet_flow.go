@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"io"
 	"net"
 )
@@ -56,7 +57,7 @@ type HardwareAddr net.HardwareAddr
 // MarshalJSON creates a human-readable string representation of a HardwareAddr
 func (e HardwareAddr) MarshalJSON() ([]byte, error) {
 	x := net.HardwareAddr(e)
-	return json.Marshal(fmt.Sprintf("%s", x))
+	return json.Marshal(strings.Replace(fmt.Sprintf("%s", x), ":", "", -1))
 }
 
 // UnmarshalJSON reads a MAC Address via net.ParseMAC into HardwareAddr
