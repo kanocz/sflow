@@ -5,8 +5,9 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/yseto/sflow/records"
 	"io"
+
+	"github.com/yseto/sflow/records"
 )
 
 type FlowSample struct {
@@ -29,11 +30,11 @@ func (s FlowSample) String() string {
 }
 
 // SampleType returns the type of sFlow sample.
-func (s *FlowSample) SampleType() int {
+func (s FlowSample) SampleType() int {
 	return TypeFlowSample
 }
 
-func (s *FlowSample) GetRecords() []records.Record {
+func (s FlowSample) GetRecords() []records.Record {
 	return s.Records
 }
 
@@ -127,7 +128,7 @@ func decodeFlowSample(r io.ReadSeeker) (Sample, error) {
 	return s, nil
 }
 
-func (s *FlowSample) encode(w io.Writer) error {
+func (s FlowSample) encode(w io.Writer) error {
 	var err error
 
 	// We first need to encode the records.
