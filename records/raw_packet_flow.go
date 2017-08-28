@@ -179,7 +179,7 @@ func (f *RawPacketFlow) decodeIPHeader(ipVersion int, h io.Reader) error {
 				return err
 			}
 		default:
-			fmt.Printf("Unknown Protocol: %d\n", ip.Protocol)
+			//fmt.Printf("Unknown Protocol: %d\n", ip.Protocol)
 		}
 
 	} else if ipVersion == 6 {
