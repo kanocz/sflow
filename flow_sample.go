@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/yseto/sflow/records"
+	"github.com/kanocz/sflow/records"
 )
 
 type FlowSample struct {

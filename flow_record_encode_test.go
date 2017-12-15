@@ -2,9 +2,10 @@ package sflow
 
 import (
 	"bytes"
-	"github.com/yseto/sflow/records"
 	"reflect"
 	"testing"
+
+	"github.com/kanocz/sflow/records"
 )
 
 func TestEncodeDecodeRawPacketFlowRecord(t *testing.T) {

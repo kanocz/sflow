@@ -3,8 +3,9 @@ package sflow
 import (
 	"encoding/binary"
 	"errors"
-	"github.com/yseto/sflow/records"
 	"io"
+
+	"github.com/kanocz/sflow/records"
 )
 
 const (

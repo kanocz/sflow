@@ -3,9 +3,10 @@ package sflow
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/yseto/sflow/records"
 	"io"
 	"unsafe"
+
+	"github.com/kanocz/sflow/records"
 )
 
 // GenericInterfaceCounters is a generic switch counters record.

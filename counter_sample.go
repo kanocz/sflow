@@ -5,8 +5,9 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/yseto/sflow/records"
 	"io"
+
+	"github.com/kanocz/sflow/records"
 )
 
 const (
@@ -155,7 +156,7 @@ func decodeCounterSample(r io.ReadSeeker) (Sample, error) {
 			}
 		default:
 			if rec, err = records.DecodeCounter(r, format); err != nil {
-//				fmt.Printf("Error: %s\n", err)
+				//				fmt.Printf("Error: %s\n", err)
 				_, err := r.Seek(int64(length), 1)
 				if err != nil {
 					return nil, err
