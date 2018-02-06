@@ -6,9 +6,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"io"
+	"log"
 	"net"
+	"strings"
 )
 
 // Header Protocol Types found in Raw Packet Flow Record
@@ -226,6 +227,16 @@ func (f *RawPacketFlow) decodeHeader(headerType uint32) error {
 
 		//TODO: Handle VSNAP / 802.2/802 &  IPX
 
+		// for now just skip 802.1Q header
+		if hex.EncodeToString(buffer) == "8100" {
+			if err = binary.Read(h, binary.BigEndian, &buffer); err != nil {
+				return err
+			}
+			if err = binary.Read(h, binary.BigEndian, &buffer); err != nil {
+				return err
+			}
+		}
+
 		switch hex.EncodeToString(buffer) {
 		case HeaderTypeIPv4:
 			if err = f.decodeIPHeader(4, h); err != nil {
@@ -235,6 +246,8 @@ func (f *RawPacketFlow) decodeHeader(headerType uint32) error {
 			if err = f.decodeIPHeader(6, h); err != nil {
 				return err
 			}
+		default:
+			log.Println("\nDEBUG type:" + hex.EncodeToString(buffer))
 		}
 	case HeaderProtocolIPv4:
 		if err = f.decodeIPHeader(4, h); err != nil {
