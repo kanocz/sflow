@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"strings"
 )
@@ -247,7 +246,7 @@ func (f *RawPacketFlow) decodeHeader(headerType uint32) error {
 				return err
 			}
 		default:
-			log.Println("\nDEBUG type:" + hex.EncodeToString(buffer))
+			// do nothing :)
 		}
 	case HeaderProtocolIPv4:
 		if err = f.decodeIPHeader(4, h); err != nil {
