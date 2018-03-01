@@ -30,16 +30,16 @@ const (
 
 // flow sample record data structure mapping
 var flowRecordTypes = map[uint32]interface{}{
-	TypeRawPacketFlowRecord:               RawPacketFlow{},
-	TypeEthernetFrameFlowRecord:           EthernetFrameFlow{},
-	TypeExtendedSwitchFlowRecord:          ExtendedSwitchFlow{},
-	TypeExtendedRouterFlowRecord:          ExtendedRouterFlow{},
-	TypeExtendedGatewayFlowRecord:         ExtendedGatewayFlow{},
-	TypeExtendedSocketIPv4FlowRecord:      ExtendedSocketIPv4Flow{},
-	TypeExtendedSocketIPv6FlowRecord:      ExtendedSocketIPv6Flow{},
-	TypeExtendedProxySocketIPv4FlowRecord: ExtendedProxySocketIPv4Flow{},
-	TypeExtendedProxySocketIPv6FlowRecord: ExtendedProxySocketIPv6Flow{},
-	TypeHTTPRequestFlowRecord:             HTTPRequestFlow{},
+	TypeRawPacketFlowRecord: RawPacketFlow{},
+	// TypeEthernetFrameFlowRecord:           EthernetFrameFlow{},
+	// TypeExtendedSwitchFlowRecord:          ExtendedSwitchFlow{},
+	// TypeExtendedRouterFlowRecord:          ExtendedRouterFlow{},
+	// TypeExtendedGatewayFlowRecord:         ExtendedGatewayFlow{},
+	// TypeExtendedSocketIPv4FlowRecord:      ExtendedSocketIPv4Flow{},
+	// TypeExtendedSocketIPv6FlowRecord:      ExtendedSocketIPv6Flow{},
+	// TypeExtendedProxySocketIPv4FlowRecord: ExtendedProxySocketIPv4Flow{},
+	// TypeExtendedProxySocketIPv6FlowRecord: ExtendedProxySocketIPv6Flow{},
+	// TypeHTTPRequestFlowRecord:             HTTPRequestFlow{},
 }
 
 // sflow counter record types
